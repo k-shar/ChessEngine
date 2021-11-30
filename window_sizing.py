@@ -1,7 +1,6 @@
 import pygame
 
-
-def expand_to_fill_with_ratio(smaller, larger, ratio):
+def expand_to_fill_maintaining_ratio(smaller, larger, ratio):
     """returns a surface resized to fill the larger surface while maintaining the ratio"""
     maximum_size = list(larger.get_size())
     i = 0
@@ -18,8 +17,8 @@ def expand_to_fill_with_ratio(smaller, larger, ratio):
             return resized
 
 
-def resize_surface(shrink, surf, outer_surf, ratio):
-    if type(shrink) != float or not(0 < shrink <= 1):
+def resize_surface(shrink, surf, outer_surf, ratio, alignment):
+    if (type(shrink) != float and shrink != 1) or not(0 < shrink <= 1):
         raise ValueError("shrink must be float between 0 and 1")
 
     # -- create padding between outer and inner --
@@ -28,12 +27,10 @@ def resize_surface(shrink, surf, outer_surf, ratio):
     shrunk_outer_surf = pygame.transform.scale(outer_surf, (int(outer_surf.get_width() * shrink),
                                                             int(outer_surf.get_height() * shrink)))
 
-    surf = expand_to_fill_with_ratio(surf, shrunk_outer_surf, ratio)
-
-
+    surf = expand_to_fill_maintaining_ratio(surf, shrunk_outer_surf, ratio)
 
     # -- center smaller surface --
-    surf_pos = (int(outer_surf.get_width() * 0.5), int(outer_surf.get_height() * 0.5))
+    surf_pos = (int(outer_surf.get_width() * alignment[0]), int(outer_surf.get_height() * alignment[1]))
     surf_rect = surf.get_rect()
     surf_rect.centerx, surf_rect.centery = surf_pos
 
