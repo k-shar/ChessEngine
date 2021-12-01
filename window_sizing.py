@@ -1,7 +1,35 @@
 import pygame
 from pygame import freetype
 
-def expand_fill_maintaining_ratio(smaller, larger, ratio):
+
+class ScaleWindow:
+    def __init__(self, color, ratio, alignment, padding):
+        self.image = pygame.Surface((1, 1))
+        self.rect = self.image.get_rect()
+        self.pos = (0, 0)
+
+        self.color = color
+        self.ratio = ratio
+        self.alignment = alignment
+        self.padding = padding  # float 0-1 determining how much of the parent surf is filled
+
+    def resize(self, parent):
+        self.image.fill(self.color)
+
+        # -- create padding between outer and inner --
+        # create a shrunk outer surface to use instead, so when the inner surface is expanded there will be some gap
+        shrunk_outer_surf = pygame.transform.scale(parent, (int(parent.get_width() * self.padding),
+                                                            int(parent.get_height() * self.padding)))
+
+        self.image = expand_to_fill(self.image, shrunk_outer_surf, self.ratio)
+
+        # -- center smaller surface --
+        self.rect = self.image.get_rect()
+        self.rect.centerx = int(parent.get_width() * self.alignment[0])
+        self.rect.centery = int(parent.get_height() * self.alignment[1])
+
+
+def expand_to_fill(smaller, larger, ratio):
     """returns a surface resized to fill the larger surface while maintaining the ratio"""
     maximum_size = list(larger.get_size())
     i = 0
@@ -18,25 +46,6 @@ def expand_fill_maintaining_ratio(smaller, larger, ratio):
             return resized
 
 
-def resize_surface(shrink, surf, outer_surf, ratio, alignment):
-
-    # "shrink" is a float from 0-1 determining how much of the outer surface the inner will fill
-    if (type(shrink) != float and shrink != 1) or not(0 < shrink <= 1):
-        raise ValueError("shrink must be float between 0 and 1")
-
-    # -- create padding between outer and inner --
-    # create a shrunk outer surface to use instead, so when the inner surface is expanded there will be some gap
-    shrunk_outer_surf = pygame.transform.scale(outer_surf, (int(outer_surf.get_width() * shrink),
-                                                            int(outer_surf.get_height() * shrink)))
-
-    surf = expand_fill_maintaining_ratio(surf, shrunk_outer_surf, ratio)
-
-    # -- center smaller surface --
-    surf_pos = (int(outer_surf.get_width() * alignment[0]), int(outer_surf.get_height() * alignment[1]))
-    surf_rect = surf.get_rect()
-    surf_rect.centerx, surf_rect.centery = surf_pos
-
-    return surf, surf_rect
 
 
 def resize_text(shrink, surf, outer_surf, ratio, alignment):
