@@ -1,5 +1,5 @@
 import pygame
-from window_sizing import resize_text, ScaleWindow
+from window_sizing import ScaleSurface, TextSurface
 from tiles import Tile
 
 def game_loop(screen):
@@ -7,22 +7,23 @@ def game_loop(screen):
     clock = pygame.time.Clock()
 
     # -- initialise surfaces --
-    window = ScaleWindow((23, 89, 101), (16, 9), (0.5, 0.5), 1)
+    window = ScaleSurface((23, 89, 101), (16, 9), (0.5, 0.5), 1)
 
     # - chess board and border -
-    chess_board_border = ScaleWindow((0, 0, 0), (1, 1), (0.35, 0.5), 0.95)
-    chess_board = ScaleWindow((231, 167, 106), (1, 1), (0.5, 0.5), 0.9)
+    chess_board_border = ScaleSurface((0, 0, 0), (1, 1), (0.35, 0.5), 0.95)
+    chess_board = ScaleSurface((231, 167, 106), (1, 1), (0.5, 0.5), 0.9)
 
     # - evaluation bar -
-    eval_bar = ScaleWindow((0, 0, 0), (1, 14), (0.045, 0.5), 0.95)
-    eval_maximiser = ScaleWindow((231, 118, 106), (1, 15), (0.5, 0.25), 0.8)
-    eval_minimiser = ScaleWindow((80, 175, 101), (1, 15), (0.5, 0.75), 0.8)
+    eval_bar = ScaleSurface((0, 0, 0), (1, 14), (0.045, 0.5), 0.95)
+    eval_maximiser = ScaleSurface((231, 118, 106), (1, 15), (0.5, 0.25), 0.8)
+    eval_minimiser = ScaleSurface((80, 175, 101), (1, 15), (0.5, 0.75), 0.8)
 
     # - options menu -
-    options_border = ScaleWindow((0, 0, 0), (4, 6), (0.8, 0.5), 0.9)
+    options_border = ScaleSurface((0, 0, 0), (4, 6), (0.8, 0.5), 0.9)
+
+    text_output = TextSurface((255, 0, 0), (5, 3), (0.5, 0.2), 0.9, (255, 255, 255), "epic")
 
     # TODO: text output window, tile surfs
-    # text_output, text_output_pos = resize_text(0.9, text_output, options_border, (5, 3), (0.5, 0.2))]
     # tile_group.update(chess_board)
     # # tile creation
     # tile_group = pygame.sprite.Group()
@@ -58,9 +59,10 @@ def game_loop(screen):
                 eval_minimiser.resize(eval_bar.image)
 
                 options_border.resize(window.image)
-
+                text_output.resize(options_border.image)
 
         # -- blit surfaces --
+        options_border.image.blit(text_output.image, text_output.rect)
         window.image.blit(options_border.image, options_border.rect)
 
         eval_bar.image.blit(eval_maximiser.image, eval_maximiser.rect)

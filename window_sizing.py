@@ -2,7 +2,7 @@ import pygame
 from pygame import freetype
 
 
-class ScaleWindow:
+class ScaleSurface:
     def __init__(self, color, ratio, alignment, padding):
         self.image = pygame.Surface((1, 1))
         self.rect = self.image.get_rect()
@@ -21,7 +21,19 @@ class ScaleWindow:
         shrunk_outer_surf = pygame.transform.scale(parent, (int(parent.get_width() * self.padding),
                                                             int(parent.get_height() * self.padding)))
 
-        self.image = expand_to_fill(self.image, shrunk_outer_surf, self.ratio)
+        # -- expand to fill shrunk_outer_surf --
+        max_size = list(shrunk_outer_surf.get_size())
+        i = 0
+        test_size = [self.ratio[0] * i, self.ratio[1] * i]
+        # while test_size is not overflowing max_size, increase test_size
+        while not(test_size[0] > max_size[0]) and not(test_size[1] > max_size[1]):
+            i += 1  # increase the test size
+            test_size = [self.ratio[0] * i, self.ratio[1] * i]
+
+        # rollback last attempted scale up so we are no longer overflowing max_size
+        test_size = [test_size[0] - self.ratio[0], test_size[1] - self.ratio[1]]
+        # set image to the new scaled dimensions
+        self.image = pygame.transform.scale(self.image, test_size)
 
         # -- center smaller surface --
         self.rect = self.image.get_rect()
@@ -29,36 +41,20 @@ class ScaleWindow:
         self.rect.centery = int(parent.get_height() * self.alignment[1])
 
 
-def expand_to_fill(smaller, larger, ratio):
-    """returns a surface resized to fill the larger surface while maintaining the ratio"""
-    maximum_size = list(larger.get_size())
-    i = 0
-    while True:
-        i += 1
-        # create a dummy list to hold the increased size
-        test_size = [ratio[0] * i, ratio[1] * i]
-        # check if size is too big to fit in the larger surface
-        if test_size[0] > maximum_size[0] or test_size[1] > maximum_size[1]:
-            # rollback last attempted scale up
-            test_size = [test_size[0] - ratio[0], test_size[1] - ratio[1]]
-            # scale smaller surface to new dimensions and return
-            resized = pygame.transform.scale(smaller, test_size)
-            return resized
+class TextSurface(ScaleSurface):
+    def __init__(self, color, ratio, alignment, padding, text_color, text):
+        super().__init__(color, ratio, alignment, padding)
+        self.text_color = text_color
+        self.text = text
 
+    def resize(self, parent):
+        # resize the outer surface as normal
+        super().resize(parent)
 
-
-
-def resize_text(shrink, surf, outer_surf, ratio, alignment):
-
-    surf.fill((255, 10, 10))
-    surf, surf_pos = resize_surface(shrink, surf, outer_surf, ratio, alignment)
-
-    # -- generate and blit text --
-    font = pygame.freetype.SysFont("bell", surf.get_height())
-    if surf.get_size() == (0, 0):
-        text_surf, text_rect = font.render("test", fgcolor=(255, 255, 255), size=60)
-    else:
-        text_surf, text_rect = font.render("test", fgcolor=(255, 255, 255), size=surf.get_height()*0.7)
-    surf.blit(text_surf, text_surf.get_rect(center=surf.get_rect().center))
-
-    return surf, surf_pos
+        # -- generate and blit text --
+        font = pygame.freetype.SysFont("ComicSansMS", self.image.get_height())
+        if self.image.get_size() == (0, 0):  # first resize post will give a surface of dimensions 0
+            text_surf, text_rect = font.render("this should only run once", fgcolor=self.text_color, size=1)
+        else:
+            text_surf, text_rect = font.render(self.text, fgcolor=self.text_color, size=self.image.get_height()*0.7)
+        self.image.blit(text_surf, text_surf.get_rect(center=self.image.get_rect().center))
