@@ -6,7 +6,6 @@ class ScaleSurface:
     def __init__(self, color, ratio, alignment, padding):
         self.image = pygame.Surface((1, 1))
         self.rect = self.image.get_rect()
-        self.pos = (0, 0)
 
         self.color = color
         self.ratio = ratio
@@ -42,19 +41,20 @@ class ScaleSurface:
 
 
 class TextSurface(ScaleSurface):
-    def __init__(self, color, ratio, alignment, padding, text_color, text):
+    def __init__(self, color, ratio, alignment, padding, text_color, text, text_size):
         super().__init__(color, ratio, alignment, padding)
         self.text_color = text_color
         self.text = text
+        self.text_size = text_size
 
     def resize(self, parent):
         # resize the outer surface as normal
         super().resize(parent)
 
         # -- generate and blit text --
-        font = pygame.freetype.SysFont("ComicSansMS", self.image.get_height())
+        font = pygame.freetype.SysFont("Bell", self.image.get_height())
         if self.image.get_size() == (0, 0):  # first resize post will give a surface of dimensions 0
             text_surf, text_rect = font.render("this should only run once", fgcolor=self.text_color, size=1)
         else:
-            text_surf, text_rect = font.render(self.text, fgcolor=self.text_color, size=self.image.get_height()*0.7)
+            text_surf, text_rect = font.render(self.text, fgcolor=self.text_color, size=self.image.get_height()*self.text_size)
         self.image.blit(text_surf, text_surf.get_rect(center=self.image.get_rect().center))

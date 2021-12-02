@@ -10,8 +10,8 @@ def game_loop(screen):
     window = ScaleSurface((23, 89, 101), (16, 9), (0.5, 0.5), 1)
 
     # - chess board and border -
-    chess_board_border = ScaleSurface((0, 0, 0), (1, 1), (0.35, 0.5), 0.95)
-    chess_board = ScaleSurface((231, 167, 106), (1, 1), (0.5, 0.5), 0.9)
+    chess_board_border = ScaleSurface((0, 0, 0), (1, 1), (0.35, 0.5), 0.9)
+    chess_board = ScaleSurface((231, 167, 106), (1, 1), (0.5, 0.5), 0.95)
 
     # - evaluation bar -
     eval_bar = ScaleSurface((0, 0, 0), (1, 14), (0.045, 0.5), 0.95)
@@ -20,10 +20,16 @@ def game_loop(screen):
 
     # - options menu -
     options_border = ScaleSurface((0, 0, 0), (4, 6), (0.8, 0.5), 0.9)
+    # text output
+    text_output = TextSurface((255, 0, 0), (5, 3), (0.5, 0.2), 0.9, (255, 255, 255), "win/ lose", 0.4)
+    # move hints
+    move_hint_label = TextSurface((255, 0, 0), (4, 1), (0.5, 0.5), 0.9, (255, 255, 255), "move hints    ", 0.5)
+    move_hint_checkbox = TextSurface((0, 10, 0), (1, 1), (0.9, 0.5), 0.7, (255, 255, 255), "√", 0.45)
+    # show engine
+    show_engine_label = TextSurface((255, 0, 0), (4, 1), (0.5, 0.7), 0.9, (255, 255, 255), "show engine    ", 0.45)
+    show_engine_checkbox = TextSurface((0, 20, 0), (1, 1), (0.9, 0.5), 0.7, (255, 255, 255), "x", 0.45)
 
-    text_output = TextSurface((255, 0, 0), (5, 3), (0.5, 0.2), 0.9, (255, 255, 255), "epic")
-
-    # TODO: text output window, tile surfs
+    # TODO: tile surfs
     # tile_group.update(chess_board)
     # # tile creation
     # tile_group = pygame.sprite.Group()
@@ -61,7 +67,20 @@ def game_loop(screen):
                 options_border.resize(window.image)
                 text_output.resize(options_border.image)
 
+                move_hint_label.resize(options_border.image)
+                move_hint_checkbox.resize(move_hint_label.image)
+                show_engine_label.resize(options_border.image)
+                show_engine_checkbox.resize(show_engine_label.image)
+
         # -- blit surfaces --
+
+        # move hints
+        move_hint_label.image.blit(move_hint_checkbox.image, move_hint_checkbox.rect)
+        options_border.image.blit(move_hint_label.image, move_hint_label.rect)
+        # show engine
+        show_engine_label.image.blit(show_engine_checkbox.image, show_engine_checkbox.rect)
+        options_border.image.blit(show_engine_label.image, show_engine_label.rect)
+        # text output
         options_border.image.blit(text_output.image, text_output.rect)
         window.image.blit(options_border.image, options_border.rect)
 
