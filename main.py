@@ -21,13 +21,21 @@ def game_loop(screen):
     # - options menu -
     options_border = ScaleSurface((0, 0, 0), (4, 6), (0.8, 0.5), 0.9)
     # text output
-    text_output = TextSurface((255, 0, 0), (5, 3), (0.5, 0.2), 0.9, (255, 255, 255), "win/ lose", 0.4)
+    text_output = TextSurface((255, 0, 0), (5, 2), (0.5, 0.15), 0.9, (255, 255, 255), "win/ lose", 0.4)
     # move hints
-    move_hint_label = TextSurface((255, 0, 0), (4, 1), (0.5, 0.5), 0.9, (255, 255, 255), "move hints    ", 0.5)
+    move_hint_label = TextSurface((255, 0, 0), (4, 1), (0.5, 0.37), 0.9, (255, 255, 255), "move hints   ", 0.5)
     move_hint_checkbox = TextSurface((0, 10, 0), (1, 1), (0.9, 0.5), 0.7, (255, 255, 255), "√", 0.45)
     # show engine
-    show_engine_label = TextSurface((255, 0, 0), (4, 1), (0.5, 0.7), 0.9, (255, 255, 255), "show engine    ", 0.45)
+    show_engine_label = TextSurface((255, 0, 0), (4, 1), (0.5, 0.52), 0.9, (255, 255, 255), "show engine   ", 0.5)
     show_engine_checkbox = TextSurface((0, 20, 0), (1, 1), (0.9, 0.5), 0.7, (255, 255, 255), "x", 0.45)
+    # reset board
+    reset_board = TextSurface((255, 0, 0), (4, 1), (0.5, 0.9), 0.9, (255, 255, 255), "reset board", 0.6)
+    # color schemes
+    color_theme_border = TextSurface((70, 0, 200), (6, 1), (0.5, 0.66), 0.9, (255, 255, 255), "Color Themes", 0.6)
+    red = TextSurface((255, 0, 0), (4, 3), (0.25, 0.75), 0.2, (255, 255, 255), "x", 0.45)
+    green = TextSurface((0, 255, 0), (4, 3), (0.5, 0.75), 0.2, (255, 255, 255), "√", 0.45)
+    blue = TextSurface((0, 0, 255), (4, 3), (0.75, 0.75), 0.2, (255, 255, 255), "x", 0.45)
+
 
     # TODO: tile surfs
     # tile_group.update(chess_board)
@@ -57,37 +65,66 @@ def game_loop(screen):
                 screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 window.resize(screen)
 
+                # chess board
                 chess_board_border.resize(window.image)
                 chess_board.resize(chess_board_border.image)
 
+                # evaluation bar
                 eval_bar.resize(window.image)
                 eval_maximiser.resize(eval_bar.image)
                 eval_minimiser.resize(eval_bar.image)
 
+                # - options menu -
                 options_border.resize(window.image)
                 text_output.resize(options_border.image)
 
+                # move hint button
                 move_hint_label.resize(options_border.image)
                 move_hint_checkbox.resize(move_hint_label.image)
+
+                # show engine button
                 show_engine_label.resize(options_border.image)
                 show_engine_checkbox.resize(show_engine_label.image)
 
+                # - color themes -
+                color_theme_border.resize(options_border.image)
+                red.resize(options_border.image)
+                green.resize(options_border.image)
+                blue.resize(options_border.image)
+
+                # resize button
+                reset_board.resize(options_border.image)
+
         # -- blit surfaces --
+
+        # reset board
+        options_border.image.blit(reset_board.image, reset_board.rect)
+
+        # color themes
+        options_border.image.blit(red.image, red.rect)
+        options_border.image.blit(blue.image, blue.rect)
+        options_border.image.blit(green.image, green.rect)
+        options_border.image.blit(color_theme_border.image, color_theme_border.rect)
+
 
         # move hints
         move_hint_label.image.blit(move_hint_checkbox.image, move_hint_checkbox.rect)
         options_border.image.blit(move_hint_label.image, move_hint_label.rect)
+
         # show engine
         show_engine_label.image.blit(show_engine_checkbox.image, show_engine_checkbox.rect)
         options_border.image.blit(show_engine_label.image, show_engine_label.rect)
+
         # text output
         options_border.image.blit(text_output.image, text_output.rect)
         window.image.blit(options_border.image, options_border.rect)
 
+        # evaluation bar
         eval_bar.image.blit(eval_maximiser.image, eval_maximiser.rect)
         eval_bar.image.blit(eval_minimiser.image, eval_minimiser.rect)
         window.image.blit(eval_bar.image, eval_bar.rect)
 
+        # chess board
         chess_board_border.image.blit(chess_board.image, chess_board.rect)
         window.image.blit(chess_board_border.image, chess_board_border.rect)
 

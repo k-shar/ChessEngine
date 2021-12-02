@@ -52,7 +52,7 @@ class TextSurface(ScaleSurface):
         super().resize(parent)
 
         # -- generate and blit text --
-        font = pygame.freetype.SysFont("Bell", self.image.get_height())
+        font = pygame.freetype.SysFont("Consolas", self.image.get_height())
         if self.image.get_size() == (0, 0):  # first resize post will give a surface of dimensions 0
             text_surf, text_rect = font.render("this should only run once", fgcolor=self.text_color, size=1)
         else:
