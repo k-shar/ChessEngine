@@ -3,7 +3,7 @@ from window_sizing import ScaleSurface, TextSurface
 from tiles import Tile
 
 def game_loop(screen):
-    pygame.display.set_caption("Epic chess engine")
+    pygame.display.set_caption("First iteration chess engine")
     clock = pygame.time.Clock()
 
     # -- initialise surfaces --
@@ -11,7 +11,7 @@ def game_loop(screen):
 
     # - chess board and border -
     chess_board_border = ScaleSurface((0, 0, 0), (1, 1), (0.35, 0.5), 0.9)
-    chess_board = ScaleSurface((231, 167, 106), (1, 1), (0.5, 0.5), 0.95)
+    chess_board = ScaleSurface((190, 183, 223), (1, 1), (0.5, 0.5), 0.95)
 
     # - evaluation bar -
     eval_bar = ScaleSurface((0, 0, 0), (1, 14), (0.045, 0.5), 0.95)
@@ -21,20 +21,20 @@ def game_loop(screen):
     # - options menu -
     options_border = ScaleSurface((0, 0, 0), (4, 6), (0.8, 0.5), 0.9)
     # text output
-    text_output = TextSurface((255, 0, 0), (5, 2), (0.5, 0.15), 0.9, (255, 255, 255), "win/ lose", 0.4)
+    text_output = TextSurface((80, 175, 223), (5, 2), (0.5, 0.15), 0.9, (255, 255, 255), "win/ lose", 0.4)
     # move hints
-    move_hint_label = TextSurface((255, 0, 0), (4, 1), (0.5, 0.37), 0.9, (255, 255, 255), "move hints   ", 0.5)
-    move_hint_checkbox = TextSurface((0, 10, 0), (1, 1), (0.9, 0.5), 0.7, (255, 255, 255), "√", 0.45)
+    move_hint_label = TextSurface((162, 163, 187), (4, 1), (0.5, 0.37), 0.9, (255, 255, 255), "move hints   ", 0.5)
+    move_hint_checkbox = TextSurface((0, 5, 3), (1, 1), (0.9, 0.5), 0.7, (255, 255, 255), "√", 0.9)
     # show engine
-    show_engine_label = TextSurface((255, 0, 0), (4, 1), (0.5, 0.52), 0.9, (255, 255, 255), "show engine   ", 0.5)
-    show_engine_checkbox = TextSurface((0, 20, 0), (1, 1), (0.9, 0.5), 0.7, (255, 255, 255), "x", 0.45)
+    show_engine_label = TextSurface((162, 163, 187), (4, 1), (0.5, 0.52), 0.9, (255, 255, 255), "show engine   ", 0.5)
+    show_engine_checkbox = TextSurface((0, 20, 0), (1, 1), (0.9, 0.5), 0.7, (255, 255, 255), "x", 0.9)
     # reset board
     reset_board = TextSurface((255, 0, 0), (4, 1), (0.5, 0.9), 0.9, (255, 255, 255), "reset board", 0.6)
     # color schemes
     color_theme_border = TextSurface((70, 0, 200), (6, 1), (0.5, 0.66), 0.9, (255, 255, 255), "Color Themes", 0.6)
-    red = TextSurface((255, 0, 0), (4, 3), (0.25, 0.75), 0.2, (255, 255, 255), "x", 0.45)
-    green = TextSurface((0, 255, 0), (4, 3), (0.5, 0.75), 0.2, (255, 255, 255), "√", 0.45)
-    blue = TextSurface((0, 0, 255), (4, 3), (0.75, 0.75), 0.2, (255, 255, 255), "x", 0.45)
+    red = TextSurface((255, 0, 0), (4, 3), (0.25, 0.75), 0.2, (255, 255, 255), "x", 0.9)
+    green = TextSurface((0, 255, 0), (4, 3), (0.5, 0.75), 0.2, (255, 255, 255), "√", 0.9)
+    blue = TextSurface((0, 0, 255), (4, 3), (0.75, 0.75), 0.2, (255, 255, 255), "x", 0.9)
 
 
     # TODO: tile surfs
@@ -105,7 +105,6 @@ def game_loop(screen):
         options_border.image.blit(blue.image, blue.rect)
         options_border.image.blit(green.image, green.rect)
         options_border.image.blit(color_theme_border.image, color_theme_border.rect)
-
 
         # move hints
         move_hint_label.image.blit(move_hint_checkbox.image, move_hint_checkbox.rect)
