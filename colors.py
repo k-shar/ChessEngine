@@ -28,8 +28,8 @@ blue_theme = {
     "BORDER": (0, 0, 0),
     "CHESS_BOARD": (190, 183, 223),
 
-    "MAXIMISER": (231, 118, 106),
-    "MINIMISER": (80, 175, 101),
+    "MAXIMISER": (0, 0, 0),
+    "MINIMISER": (255, 255, 255),
 
     "TEXT_OUTPUT": (80, 175, 223),
 
@@ -50,10 +50,10 @@ green_theme = {
     "MAXIMISER": (231, 118, 106),
     "MINIMISER": (80, 175, 101),
 
-    "TEXT_OUTPUT": (80, 175, 223),
+    "TEXT_OUTPUT": (21, 16, 240),
 
-    "BUTTON": (162, 163, 187),
-    "HOVERED": (100, 100, 255),
+    "BUTTON": (0, 103, 166),
+    "HOVERED": (44, 29, 255),
 
     "TEXT": (255, 255, 255),
     "RESET": (255, 0, 0)

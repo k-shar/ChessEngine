@@ -73,14 +73,13 @@ class TextSurface(ScaleSurface):
 
 
 class Button(TextSurface):
-    def __init__(self, color, ratio, alignment, padding, text, text_size, hover_color_name):
+    def __init__(self, color, ratio, alignment, padding, text, text_size, ):
         super().__init__(color, ratio, alignment, padding, text, text_size)
         self.hovered, self.clicked = False, False
-        self.hover_color_name = hover_color_name
 
     def hover(self, is_hovered):
         if is_hovered:
-            self.image.fill(self.color_set[self.hover_color_name])
+            self.image.fill(self.color_set["HOVERED"])
         else:
             self.image.fill(self.color_set[self.name])
         super().draw_text(self.active_text)
@@ -89,9 +88,27 @@ class Button(TextSurface):
         self.clicked = is_clicked
 
 
+class ResetButton(Button):
+    def __init__(self, color, ratio, alignment, padding, text, text_size,):
+        super().__init__(color, ratio, alignment, padding, text, text_size)
+        self.hover_color_name = "RESET"
+
+    def hover(self, is_hovered):
+        if is_hovered:
+            self.image.fill(self.color_set["RESET"])
+            self.text_color = self.color_set["BORDER"]
+        else:
+            self.image.fill(self.color_set["BORDER"])
+            self.text_color = self.color_set["TEXT"]
+        super().draw_text(self.active_text)
+
+    def click(self, is_clicked):
+        print("reset!")
+
+
 class ColorThemeButton(Button):
     def __init__(self, alignment, pri_text, alt_text, color_theme):
-        super().__init__("BUTTON", (1, 1), alignment, 0.19, pri_text, 0.3, "HOVERED")
+        super().__init__("BUTTON", (1, 1), alignment, 0.19, pri_text, 0.3)
 
         self.color_theme = color_theme
         self.pri_text = pri_text  # primary text
@@ -111,7 +128,7 @@ class ColorThemeButton(Button):
 
 class HintsToggle(Button):
     def __init__(self, alignment, text):
-        super().__init__("BUTTON", (4, 1), alignment, 0.9, text, 0.5, "HOVERED")
+        super().__init__("BUTTON", (4, 1), alignment, 0.9, text, 0.5)
 
         self.color = colors.blue_theme["BUTTON"]
         self.text_color = colors.blue_theme["TEXT"]

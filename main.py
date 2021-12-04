@@ -1,5 +1,5 @@
 import pygame
-from window_sizing import ScaleSurface, TextSurface, Button, ColorThemeButton, HintsToggle
+from window_sizing import ScaleSurface, TextSurface, Button, ColorThemeButton, HintsToggle, ResetButton
 from tiles import Tile
 import colors
 
@@ -18,7 +18,7 @@ def game_loop(screen):
     chess_board = ScaleSurface("CHESS_BOARD", (1, 1), (0.5, 0.5), 0.95)
 
     # - evaluation bar -
-    eval_bar = ScaleSurface("BORDER", (1, 14), (0.045, 0.5), 0.95)
+    eval_bar_border = ScaleSurface("BORDER", (1, 14), (0.045, 0.5), 0.95)
     eval_maximiser = ScaleSurface("MAXIMISER", (1, 15), (0.5, 0.25), 0.8)
     eval_minimiser = ScaleSurface("MINIMISER", (1, 15), (0.5, 0.75), 0.8)
 
@@ -33,9 +33,9 @@ def game_loop(screen):
     hint_engine = HintsToggle((0.5, 0.52), "show engine   ")
 
     # reset board
-    reset_board = Button("BORDER", (21, 4), (0.5, 0.92), 0.9, "reset board", 0.6, "RESET")
+    reset_board = ResetButton("BORDER", (21, 4), (0.5, 0.92), 0.9, "reset board", 0.6)
     # color schemes
-    color_theme_border = TextSurface("TEXT_OUTPUT", (6, 1), (0.5, 0.66), 0.93, "Color Themes", 0.6)
+    color_theme_label = TextSurface("TEXT_OUTPUT", (6, 1), (0.5, 0.66), 0.93, "Color Themes", 0.6)
 
     # - color theme buttons -
     red = ColorThemeButton((0.15, 0.79), "blue", "√", colors.blue_theme)
@@ -55,6 +55,7 @@ def game_loop(screen):
     # -- surface groups --
     scale_surfs = [window, chess_board, chess_board_border, options_border]
     other_buttons = [hint_move, hint_engine, reset_board]
+    static_surfs = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser]
     color_theme_buttons = [red, green, blue, rainbow]
 
     # -- post resize events --
@@ -110,9 +111,9 @@ def game_loop(screen):
                 chess_board.resize(chess_board_border.image)
 
                 # evaluation bar
-                eval_bar.resize(window.image)
-                eval_maximiser.resize(eval_bar.image)
-                eval_minimiser.resize(eval_bar.image)
+                eval_bar_border.resize(window.image)
+                eval_maximiser.resize(eval_bar_border.image)
+                eval_minimiser.resize(eval_bar_border.image)
 
                 # - options menu -
                 options_border.resize(window.image)
@@ -123,7 +124,7 @@ def game_loop(screen):
                 hint_engine.resize(options_border.image)
 
                 # - color themes -
-                color_theme_border.resize(options_border.image)
+                color_theme_label.resize(options_border.image)
                 red.resize(options_border.image)
                 green.resize(options_border.image)
                 blue.resize(options_border.image)
@@ -154,8 +155,13 @@ def game_loop(screen):
                             # select one button as clicked
                             for other_button in color_theme_buttons:
                                 other_button.click(False)
-                            # new color theme, update surfs with resize post
+
                             col = theme_button.click(True)
+                            # update the surfs with the new color theme
+                            for surf in scale_surfs + color_theme_buttons + other_buttons + static_surfs:
+                                surf.color_set = col
+
+                            # post resize event to re-color them
                             pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE,
                                                                  {"w": screen.get_width(), "h": screen.get_height()}))
                     else:
@@ -178,7 +184,7 @@ def game_loop(screen):
         options_border.image.blit(blue.image, blue.rect)
         options_border.image.blit(rainbow.image, rainbow.rect)
         options_border.image.blit(green.image, green.rect)
-        options_border.image.blit(color_theme_border.image, color_theme_border.rect)
+        options_border.image.blit(color_theme_label.image, color_theme_label.rect)
 
         # hint buttons
         options_border.image.blit(hint_move.image, hint_move.rect)
@@ -189,9 +195,9 @@ def game_loop(screen):
         window.image.blit(options_border.image, options_border.rect)
 
         # evaluation bar
-        eval_bar.image.blit(eval_maximiser.image, eval_maximiser.rect)
-        eval_bar.image.blit(eval_minimiser.image, eval_minimiser.rect)
-        window.image.blit(eval_bar.image, eval_bar.rect)
+        eval_bar_border.image.blit(eval_maximiser.image, eval_maximiser.rect)
+        eval_bar_border.image.blit(eval_minimiser.image, eval_minimiser.rect)
+        window.image.blit(eval_bar_border.image, eval_bar_border.rect)
 
         # chess board
         chess_board_border.image.blit(chess_board.image, chess_board.rect)
