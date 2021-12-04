@@ -6,7 +6,7 @@ def generate_color_spectrum(N):
     # create N hue, saturation, value tuples
     HSV = []
     for i in range(N):
-        HSV.append((i/N, 1, 1))  # changing only the hue creates a spectrum
+        HSV.append((i / N, 1, 1))  # changing only the hue creates a spectrum
 
     # convert HSV to RGB using the hsv_to_rgb from colorsys
     unit_RGB = []
@@ -19,3 +19,44 @@ def generate_color_spectrum(N):
         RGB.append([color[0] * 255, color[1] * 255, color[2] * 255])
 
     return RGB
+
+
+blue_theme = {
+    "SCREEN": (6, 65, 76),
+    "WINDOW": (23, 89, 101),
+
+    "BORDER": (0, 0, 0),
+    "CHESS_BOARD": (190, 183, 223),
+
+    "MAXIMISER": (231, 118, 106),
+    "MINIMISER": (80, 175, 101),
+
+    "TEXT_OUTPUT": (80, 175, 223),
+
+    "BUTTON": (162, 163, 187),
+    "HOVERED": (100, 100, 255),
+
+    "TEXT": (255, 255, 255),
+    "RESET": (255, 0, 0)
+}
+
+green_theme = {
+    "SCREEN": (13, 26, 8),
+    "WINDOW": (58, 120, 34),
+
+    "BORDER": (6, 30, 4),
+    "CHESS_BOARD": (19, 83, 23),
+
+    "MAXIMISER": (231, 118, 106),
+    "MINIMISER": (80, 175, 101),
+
+    "TEXT_OUTPUT": (80, 175, 223),
+
+    "BUTTON": (162, 163, 187),
+    "HOVERED": (100, 100, 255),
+
+    "TEXT": (255, 255, 255),
+    "RESET": (255, 0, 0)
+}
+
+default_theme = blue_theme
