@@ -2,8 +2,9 @@ import pygame
 from pygame import freetype
 
 
-class ScaleSurface:
+class ScaleSurface(pygame.sprite.Sprite):
     def __init__(self, color, ratio, alignment, padding):
+        super().__init__()
         self.image = pygame.Surface((1, 1))
         self.rect = self.image.get_rect()
 
@@ -54,7 +55,30 @@ class TextSurface(ScaleSurface):
         # -- generate and blit text --
         font = pygame.freetype.SysFont("Consolas", self.image.get_height())
         if self.image.get_size() == (0, 0):  # first resize post will give a surface of dimensions 0
-            text_surf, text_rect = font.render("this should only run once", fgcolor=self.text_color, size=1)
+            self.text_surf, self.text_rect = font.render("this should only run once", fgcolor=self.text_color, size=1)
         else:
-            text_surf, text_rect = font.render(self.text, fgcolor=self.text_color, size=self.image.get_height()*self.text_size)
-        self.image.blit(text_surf, text_surf.get_rect(center=self.image.get_rect().center))
+            self.text_surf, self.text_rect = font.render(self.text, fgcolor=self.text_color, size=self.image.get_height()*self.text_size)
+        self.image.blit(self.text_surf, self.text_surf.get_rect(center=self.image.get_rect().center))
+
+
+class Button(TextSurface):
+    def __init__(self, color, ratio, alignment, padding, text_color, text, text_size, hover_color):
+        super().__init__(color, ratio, alignment, padding, text_color, text, text_size)
+        self.hover_color = hover_color
+
+        self.hovered = False
+        self.clicked = False
+
+    def update(self, is_hovered):
+        if is_hovered:
+            self.image.fill(self.hover_color)
+        else:
+            self.image.fill(self.color)
+
+        self.image.blit(self.text_surf, self.text_surf.get_rect(center=self.image.get_rect().center))
+
+
+
+
+
+
