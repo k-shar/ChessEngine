@@ -107,10 +107,8 @@ def game_loop(screen):
                 surf = all_surfaces[i]
                 surf.setcolor(fade_spectrum_3d[i][fade_counter])
 
-                if type(surf) == "window_sizing.TextSurface":
-                    surf.draw_text(all_surfaces[i].active_text)
-                if type(surf) == "window_sizing.HintsToggle":
-                    surf.resize(surf.parent)
+                if type(surf) == HintsToggle:
+                    surf.resize(options_border.image)
 
             fade_counter -= 1
             # reset surfs to original (new) color set
