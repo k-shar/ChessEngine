@@ -17,6 +17,11 @@ class ScaleSurface(pygame.sprite.Sprite):
         self.alignment = alignment
         self.padding = padding  # float 0-1 determining how much of the parent surf is filled
 
+    def setcolor(self, color):
+        self.color = color
+        print(color)
+        self.image.fill(self.color)
+
     def resize(self, parent):
         self.color = self.color_set[self.name]
         self.image.fill(self.color)
@@ -56,6 +61,10 @@ class TextSurface(ScaleSurface):
 
         self.text_surf, self.text_rect = None, None
         self.parent = None
+
+    def setcolor(self, color):
+        super().setcolor(color)
+        self.draw_text(self.active_text)
 
     def resize(self, parent):
         super().resize(parent)
