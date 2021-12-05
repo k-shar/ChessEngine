@@ -19,7 +19,6 @@ class ScaleSurface(pygame.sprite.Sprite):
 
     def setcolor(self, color):
         self.color = color
-        print(color)
         self.image.fill(self.color)
 
     def resize(self, parent):
@@ -143,9 +142,11 @@ class HintsToggle(Button):
         self.text_color = colors.blue_theme["TEXT"]
 
         self.checkbox = TextSurface("BORDER", (1, 1), (0.9, 0.5), 0.7, "x", 0.9)
+        self.parent = None
 
     def resize(self, parent):
         super().resize(parent)
+        self.parent = parent
         self.checkbox.resize(self.image)
         self.image.blit(self.checkbox.image, self.checkbox.rect)
 

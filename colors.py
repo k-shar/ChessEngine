@@ -1,6 +1,6 @@
 from colorsys import hsv_to_rgb, rgb_to_hsv
 import seaborn
-
+import random
 
 def rainbow_spectrum(N):
     # create N hue, saturation, value tuples
@@ -62,7 +62,26 @@ blue_theme = {
     "RESET": (255, 0, 0)
 }
 
-green_theme = {
+purple_theme = {
+    "SCREEN": (37, 6, 76),
+    "WINDOW": (85, 50, 133),
+
+    "BORDER": (15, 7, 24),
+    "CHESS_BOARD": (151, 104, 209),
+
+    "MAXIMISER": (0, 0, 0),
+    "MINIMISER": (255, 255, 255),
+
+    "TEXT_OUTPUT":  (143, 0, 255),
+
+    "BUTTON": (0, 103, 166),
+    "HOVERED": (151, 104, 209),
+
+    "TEXT": (255, 255, 255),
+    "RESET": (255, 0, 0)
+}
+
+old_green_theme = {
     "SCREEN": (13, 26, 8),
     "WINDOW": (58, 120, 34),
 
@@ -81,4 +100,28 @@ green_theme = {
     "RESET": (255, 0, 0)
 }
 
-default_theme = blue_theme
+
+all_black = {
+    "SCREEN": (0, 0, 0),
+    "WINDOW": (0, 0, 0),
+
+    "BORDER": (0, 0, 0),
+    "CHESS_BOARD": (0, 0, 0),
+
+    "MAXIMISER": (0, 0, 0),
+    "MINIMISER": (0, 0, 0),
+
+    "TEXT_OUTPUT": (0, 0, 0),
+
+    "BUTTON": (0, 0, 0),
+    "HOVERED": (0, 0, 0),
+
+    "TEXT": (0, 0, 0),
+    "RESET": (0, 0, 0)
+}
+
+default_theme = blue_theme.copy()
+multi_theme = all_black.copy()
+
+random_theme = all_black.copy()
+random_theme["WINDOW"] = (1, 2, 3)

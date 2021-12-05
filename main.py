@@ -2,6 +2,7 @@ import pygame
 from window_sizing import ScaleSurface, TextSurface, Button, ColorThemeButton, HintsToggle, ResetButton
 from tiles import Tile
 import colors
+import random
 
 
 def game_loop(screen):
@@ -38,10 +39,11 @@ def game_loop(screen):
     color_theme_label = TextSurface("TEXT_OUTPUT", (6, 1), (0.5, 0.66), 0.93, "Color Themes", 0.6)
 
     # - color theme buttons -
-    red = ColorThemeButton((0.15, 0.79), "blue", "√", colors.blue_theme)
-    green = ColorThemeButton((0.38, 0.79), "green", "√", colors.green_theme)
-    rainbow = ColorThemeButton((0.62, 0.79), "multi", "√", colors.blue_theme)  # rainbow theme is handled differently
-    blue = ColorThemeButton((0.85, 0.79), "random", "√", colors.blue_theme)
+    blue = ColorThemeButton((0.15, 0.79), "blue", "√", colors.blue_theme)
+    blue.click(True)
+    green = ColorThemeButton((0.38, 0.79), "purple", "√", colors.purple_theme)
+    rainbow = ColorThemeButton((0.62, 0.79), "multi", "√", colors.multi_theme)
+    random_theme = ColorThemeButton((0.85, 0.79), "random", "√", colors.random_theme)
 
     # -- mouse pointer dummy values --
     mouse_pointer_size = 1
@@ -56,7 +58,7 @@ def game_loop(screen):
     scale_surfs = [window, chess_board, chess_board_border, options_border]
     other_buttons = [hint_move, hint_engine, reset_board]
     static_surfs = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser]
-    color_theme_buttons = [red, green, blue, rainbow]
+    color_theme_buttons = [blue, green, rainbow, random_theme]
     all_surfaces = scale_surfs + other_buttons + static_surfs + color_theme_buttons
 
     # -- post resize events --
@@ -66,14 +68,17 @@ def game_loop(screen):
 
     # -- generate array of rainbow colors --
     frame = 0
-    N = 400
+    N = 300
     color_spectrum = colors.rainbow_spectrum(N)
     color_spectrum = color_spectrum * 2  # *2 to avoid an out of phase surface indexing an item out of the array
 
     # -- initialise fade variables --
+    fade_duration = 30
     fade_spectrum_3d = []
-    fade_counter = 0
-    fade_duration = 60
+    for surf in all_surfaces:
+        fade_spectrum_3d.append(colors.generate_spectrum(fade_duration, colors.multi_theme[surf.name],
+                                                         colors.default_theme[surf.name]))
+    fade_counter = fade_duration - 1
 
     # -- game loop --
     while True:
@@ -99,7 +104,13 @@ def game_loop(screen):
         # -- fade between colors --
         if fade_counter > 0:
             for i in range(len(all_surfaces)):
-                all_surfaces[i].setcolor(fade_spectrum_3d[i][fade_counter])
+                surf = all_surfaces[i]
+                surf.setcolor(fade_spectrum_3d[i][fade_counter])
+
+                if type(surf) == "window_sizing.TextSurface":
+                    surf.draw_text(all_surfaces[i].active_text)
+                if type(surf) == "window_sizing.HintsToggle":
+                    surf.resize(surf.parent)
 
             fade_counter -= 1
             # reset surfs to original (new) color set
@@ -142,9 +153,9 @@ def game_loop(screen):
 
                 # - color themes -
                 color_theme_label.resize(options_border.image)
-                red.resize(options_border.image)
-                green.resize(options_border.image)
                 blue.resize(options_border.image)
+                green.resize(options_border.image)
+                random_theme.resize(options_border.image)
                 rainbow.resize(options_border.image)
 
                 # resize button
@@ -155,8 +166,7 @@ def game_loop(screen):
                 options_offset = options_border.rect.topleft
 
             # -- button hover and click --
-            if event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONUP and fade_counter <= 0:
-
+            if (event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONUP) and fade_counter <= 0:
                 # -- set mouse_pointer offsets and rect --
                 relative_to_options = [pygame.mouse.get_pos()[0] - window_offset[0] - options_offset[0],
                                        pygame.mouse.get_pos()[1] - window_offset[1] - options_offset[1]]
@@ -165,29 +175,56 @@ def game_loop(screen):
 
                 # check if mouse is hovering over a color theme button
                 for theme_button in color_theme_buttons:
+
+                    # -- apply hover effect --
                     if theme_button.rect.colliderect(mouse_pointer_rect):
                         theme_button.hover(True)
 
+                        # -- on mouse click --
                         if event.type == pygame.MOUSEBUTTONUP:
-                            # select one button as clicked
+                            # store previous color theme
+                            previous_col = col
+                            # de-select all other buttons
                             for other_button in color_theme_buttons:
                                 other_button.click(False)
-
-                            previous_col = col
+                            # select clicked button
                             col = theme_button.click(True)  # theme button returns its theme dictionary
-                            # update the surfs with the new color theme
-                            for surf in scale_surfs + color_theme_buttons + other_buttons + static_surfs:
-                                surf.color_set = col
 
-                            # post resize event to re-color them
-                            pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE,
-                                                                 {"w": screen.get_width(), "h": screen.get_height()}))
+                            # ensue button was not already selected
+                            if (previous_col == col and col != colors.random_theme) or col == colors.multi_theme:
+                                break
 
-                            # -- create color fade spectrum --
-                            fade_spectrum_3d = []
-                            for surf in all_surfaces:
-                                fade_spectrum_3d.append(colors.generate_spectrum(fade_duration, previous_col[surf.name], col[surf.name]))
-                            fade_counter = fade_duration - 1
+                            # -- if random theme --
+                            if col == colors.random_theme:
+                                for surf in scale_surfs + color_theme_buttons + other_buttons + static_surfs:
+                                    theme_button.click(False)
+                                    # -- generate random color theme --
+                                    surf.color_set = {surf.name: (random.randint(0, 255), random.randint(0, 255),
+                                                                  random.randint(0, 255)),
+                                                      "TEXT": (random.randint(0, 255), random.randint(0, 255),
+                                                               random.randint(0, 255)),
+                                                      "HOVERED": (random.randint(0, 255), random.randint(0, 255),
+                                                                  random.randint(0, 255)),
+                                                      "RESET": (random.randint(0, 255), random.randint(0, 255),
+                                                                random.randint(0, 255)),
+                                                      }
+
+                                    # post resize event, to re-color surfaces
+                                    pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE,
+                                                                         {"w": screen.get_width(),
+                                                                          "h": screen.get_height()}))
+
+                            # -- else apply pre-defined theme --
+                            else:
+                                for surf in scale_surfs + color_theme_buttons + other_buttons + static_surfs:
+                                    surf.color_set = col
+
+                                # -- create color fade spectrum --
+                                fade_spectrum_3d = []
+                                for surf in all_surfaces:
+                                    fade_spectrum_3d.append(
+                                        colors.generate_spectrum(fade_duration, previous_col[surf.name], col[surf.name]))
+                                fade_counter = fade_duration - 1
 
                     else:
                         theme_button.hover(False)
@@ -205,10 +242,10 @@ def game_loop(screen):
         options_border.image.blit(reset_board.image, reset_board.rect)
 
         # color themes
-        options_border.image.blit(red.image, red.rect)
         options_border.image.blit(blue.image, blue.rect)
-        options_border.image.blit(rainbow.image, rainbow.rect)
         options_border.image.blit(green.image, green.rect)
+        options_border.image.blit(rainbow.image, rainbow.rect)
+        options_border.image.blit(random_theme.image, random_theme.rect)
         options_border.image.blit(color_theme_label.image, color_theme_label.rect)
 
         # hint buttons
