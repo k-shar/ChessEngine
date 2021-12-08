@@ -1,5 +1,4 @@
 from colorsys import hsv_to_rgb, rgb_to_hsv
-import seaborn
 import random
 
 def rainbow_spectrum(N):
