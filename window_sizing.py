@@ -120,18 +120,20 @@ class ColorThemeButton(Button):
 
         self.color_theme = color_theme
         self.pri_text = pri_text  # primary text
-        self.alt_text = alt_text  # alternative text
+        self.alt_text = alt_text  # alternative text, when selected
         self.active_text = pri_text  # the text currently shown
 
     def click(self, clicked):
-        # swap text
+        # swap text from primary to alternative text
         if clicked:
             self.active_text = self.alt_text
             super().hover(True)
         else:
             self.active_text = self.pri_text
         super().click(clicked)
+        # return the color theme that this button represents
         return self.color_theme
+
 
 
 class HintsToggle(Button):

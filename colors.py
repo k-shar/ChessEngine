@@ -1,6 +1,7 @@
 from colorsys import hsv_to_rgb, rgb_to_hsv
 import random
 
+
 def rainbow_spectrum(N):
     # create N hue, saturation, value tuples
     HSV = []
