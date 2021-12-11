@@ -40,7 +40,7 @@ def game_loop(screen):
 
     # - color theme buttons -
     blue = ColorThemeButton((0.15, 0.79), "blue", colors.blue_theme)
-    green = ColorThemeButton((0.38, 0.79), "purple", colors.purple_theme)
+    purple = ColorThemeButton((0.38, 0.79), "purple", colors.purple_theme)
     rainbow = ColorThemeButton((0.62, 0.79), "multi", colors.multi_theme)
     random_theme = ColorThemeButton((0.85, 0.79), "random", colors.random_theme)
 
@@ -60,7 +60,7 @@ def game_loop(screen):
     scale_surfs = [window, chess_board, chess_board_border, options_border]
     other_buttons = [hint_move, hint_engine, reset_board]
     static_surfs = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser]
-    color_theme_buttons = [blue, green, rainbow, random_theme]
+    color_theme_buttons = [blue, purple, rainbow, random_theme]
     all_surfaces = scale_surfs + other_buttons + static_surfs + color_theme_buttons
 
     # -- post resize events --
@@ -70,17 +70,18 @@ def game_loop(screen):
 
     # -- generate array of rainbow colors --
     frame = 0
-    N = 300
+    N = 3000
     color_spectrum = colors.rainbow_spectrum(N)
     color_spectrum = color_spectrum * 2  # *2 to avoid an out of phase surface indexing an item out of the array
 
     # -- initialise fade variables --
     fade_duration = 30
+    inital_fade_scale = 4  # how many times longer the opening first fade takes, compared to normal fades
     fade_spectrum_3d = []
     for surf in all_surfaces:
-        fade_spectrum_3d.append(colors.generate_spectrum(fade_duration*5, colors.multi_theme[surf.name],
+        fade_spectrum_3d.append(colors.generate_spectrum(fade_duration*inital_fade_scale, colors.multi_theme[surf.name],
                                                          colors.default_theme[surf.name]))
-    fade_counter = fade_duration*5 - 1
+    fade_counter = fade_duration*inital_fade_scale - 1
 
     # -- game loop --
     while True:
@@ -97,6 +98,8 @@ def game_loop(screen):
             options_border.image.fill(color_spectrum[frame])
             screen.fill(color_spectrum[frame + N // 4])
             window.image.fill(color_spectrum[frame + N // 2])
+        # if purple.clicked:
+        #     window.image.fill(color_spectrum[frame])
 
         # -- update frame counter --
         frame += 1
@@ -154,7 +157,7 @@ def game_loop(screen):
                 # - color themes -
                 color_theme_label.resize(options_border.image)
                 blue.resize(options_border.image)
-                green.resize(options_border.image)
+                purple.resize(options_border.image)
                 random_theme.resize(options_border.image)
                 rainbow.resize(options_border.image)
 
@@ -243,7 +246,7 @@ def game_loop(screen):
 
         # color themes
         options_border.image.blit(blue.image, blue.rect)
-        options_border.image.blit(green.image, green.rect)
+        options_border.image.blit(purple.image, purple.rect)
         options_border.image.blit(rainbow.image, rainbow.rect)
         options_border.image.blit(random_theme.image, random_theme.rect)
         options_border.image.blit(color_theme_label.image, color_theme_label.rect)
@@ -271,6 +274,7 @@ def game_loop(screen):
         pygame.display.update()
 
         clock.tick(60)
+
 
 if __name__ == "__main__":
     pygame.display.init()
