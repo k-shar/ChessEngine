@@ -1,5 +1,5 @@
 import pygame
-from window_sizing import ScaleSurface, TextSurface, Button, ColorThemeButton, HintsToggle, ResetButton
+from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton
 from tiles import Tile
 import colors
 import random
@@ -271,7 +271,6 @@ def game_loop(screen):
         pygame.display.update()
 
         clock.tick(60)
-
 
 if __name__ == "__main__":
     pygame.display.init()
