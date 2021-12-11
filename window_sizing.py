@@ -81,7 +81,7 @@ class TextSurface(ScaleSurface):
 
 
 class Button(TextSurface):
-    def __init__(self, color, ratio, alignment, padding, text, text_size, ):
+    def __init__(self, color, ratio, alignment, padding, text, text_size):
         super().__init__(color, ratio, alignment, padding, text, text_size)
         self.hovered, self.clicked = False, False
 
@@ -115,21 +115,21 @@ class ResetButton(Button):
 
 
 class ColorThemeButton(Button):
-    def __init__(self, alignment, pri_text, alt_text, color_theme):
-        super().__init__("BUTTON", (1, 1), alignment, 0.19, pri_text, 0.3)
+    def __init__(self, alignment, button_name, color_theme):
+        super().__init__("BUTTON", (1, 1), alignment, 0.19, button_name, 0.3)
 
         self.color_theme = color_theme
-        self.pri_text = pri_text  # primary text
-        self.alt_text = alt_text  # alternative text
-        self.active_text = pri_text  # the text currently shown
+        self.button_name = button_name  # primary text
 
     def click(self, clicked):
         # swap text
         if clicked:
-            self.active_text = self.alt_text
+            self.active_text = "√"
+            self.text_size = 0.6
             super().hover(True)
         else:
-            self.active_text = self.pri_text
+            self.active_text = self.button_name
+            self.text_size = 0.3
         super().click(clicked)
         return self.color_theme
 

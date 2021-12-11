@@ -39,11 +39,13 @@ def game_loop(screen):
     color_theme_label = TextSurface("TEXT_OUTPUT", (6, 1), (0.5, 0.66), 0.93, "Color Themes", 0.6)
 
     # - color theme buttons -
-    blue = ColorThemeButton((0.15, 0.79), "blue", "√", colors.blue_theme)
+    blue = ColorThemeButton((0.15, 0.79), "blue", colors.blue_theme)
+    green = ColorThemeButton((0.38, 0.79), "purple", colors.purple_theme)
+    rainbow = ColorThemeButton((0.62, 0.79), "multi", colors.multi_theme)
+    random_theme = ColorThemeButton((0.85, 0.79), "random", colors.random_theme)
+
+    # set blue theme as default
     blue.click(True)
-    green = ColorThemeButton((0.38, 0.79), "purple", "√", colors.purple_theme)
-    rainbow = ColorThemeButton((0.62, 0.79), "multi", "√", colors.multi_theme)
-    random_theme = ColorThemeButton((0.85, 0.79), "random", "√", colors.random_theme)
 
     # -- mouse pointer dummy values --
     mouse_pointer_size = 1
@@ -76,9 +78,9 @@ def game_loop(screen):
     fade_duration = 30
     fade_spectrum_3d = []
     for surf in all_surfaces:
-        fade_spectrum_3d.append(colors.generate_spectrum(fade_duration, colors.multi_theme[surf.name],
+        fade_spectrum_3d.append(colors.generate_spectrum(fade_duration*5, colors.multi_theme[surf.name],
                                                          colors.default_theme[surf.name]))
-    fade_counter = fade_duration - 1
+    fade_counter = fade_duration*5 - 1
 
     # -- game loop --
     while True:
