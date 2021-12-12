@@ -71,6 +71,7 @@ class TextSurface(ScaleSurface):
         self.draw_text(self.active_text)
 
     def draw_text(self, text):
+        super().setcolor(self.color)
         # create font
         font = pygame.freetype.SysFont("Consolas", self.image.get_height())
         # set height of text, special case for (0, 0) as text size must be non zero
