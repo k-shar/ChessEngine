@@ -87,10 +87,12 @@ class Button(TextSurface):
         self.hovered, self.clicked = False, False
 
     def hover(self, is_hovered):
+        self.hovered = is_hovered
+
         if is_hovered:
-            self.image.fill(self.color_set["HOVERED"])
+            self.setcolor(self.color_set["HOVERED"])
         else:
-            self.image.fill(self.color_set[self.name])
+            self.setcolor(self.color_set[self.name])
         super().draw_text(self.active_text)
 
     def click(self, is_clicked):
@@ -104,10 +106,10 @@ class ResetButton(Button):
 
     def hover(self, is_hovered):
         if is_hovered:
-            self.image.fill(self.color_set["RESET"])
+            self.setcolor(self.color_set["RESET"])
             self.text_color = self.color_set["BORDER"]
         else:
-            self.image.fill(self.color_set["BORDER"])
+            self.setcolor(self.color_set["BORDER"])
             self.text_color = self.color_set["TEXT"]
         super().draw_text(self.active_text)
 

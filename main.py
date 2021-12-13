@@ -122,7 +122,7 @@ def game(screen):
 
             """ resize event"""
             if event.type == pygame.VIDEORESIZE:
-
+                print(event)
                 screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 window.resize(screen)
 
