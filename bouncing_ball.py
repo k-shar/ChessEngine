@@ -1,6 +1,7 @@
 import pygame
 import random
 
+
 class Bouncy():
     def __init__(self, screen_size, loc):
 

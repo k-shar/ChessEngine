@@ -1,5 +1,6 @@
 # -- imports --
 import pygame
+import engine_config
 from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton
 from tiles import Tile
 import colors
@@ -8,11 +9,10 @@ from bouncing_ball import Bouncy
 
 
 def game(screen):
-    pygame.display.set_caption("Second iteration chess engine")
+    pygame.display.set_caption("Iteration 1.3 chess engine")
     clock = pygame.time.Clock()
     pygame.mouse.set_visible(False)
     show_ui = True
-    do_ball = False
     balls = []
 
     """ Initialise Surfaces """
@@ -30,17 +30,17 @@ def game(screen):
 
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
-    text_output = TextSurface("TEXT_OUTPUT", (5, 2), (0.5, 0.15), 0.93, "win/ lose", 0.4)
+    text_output = TextSurface("TEXT_OUTPUT", (5, 2), (0.5, 0.15), 0.93, "win/ lose", 0.4, "TEXT", (1, 1))
     hint_move = HintsToggle((0.5, 0.37), "move hints   ")
     hint_engine = HintsToggle((0.5, 0.52), "show engine   ")
     reset_board = ResetButton("BORDER", (21, 4), (0.5, 0.92), 0.9, "reset board", 0.6)
 
     # -- color theme selection --
-    color_theme_label = TextSurface("TEXT_OUTPUT", (6, 1), (0.5, 0.66), 0.93, "Color Themes", 0.6)
-    blue = ColorThemeButton((0.15, 0.79), "blue", colors.blue_theme)
-    purple = ColorThemeButton((0.38, 0.79), "purple", colors.purple_theme)
-    rainbow = ColorThemeButton((0.62, 0.79), "multi", colors.multi_theme)
-    random_theme = ColorThemeButton((0.85, 0.79), "random", colors.random_theme)
+    color_theme_label = TextSurface("TEXT_OUTPUT", (6, 1), (0.5, 0.66), 0.93, "Color Themes", 0.6, "TEXT", (1, 1))
+    blue = ColorThemeButton((0.15, 0.79), "blue", engine_config.blue_theme)
+    purple = ColorThemeButton((0.38, 0.79), "purple", engine_config.purple_theme)
+    rainbow = ColorThemeButton((0.62, 0.79), "multi", engine_config.multi_theme)
+    random_theme = ColorThemeButton((0.85, 0.79), "random", engine_config.random_theme)
 
     # -- initialise mouse pointer --
     mouse_pointer_size = 1  # actual size set on resize event
@@ -49,6 +49,16 @@ def game(screen):
     # - offsets for mouse pointer -
     window_offset = [0, 0]  # distance from window from screen
     options_offset = [0, 0]  # distance from options menu to screen
+
+    """ Tile generation """
+    tile_group = []
+    white = False
+    for col_index in range(1, 9):
+        # the color of the first tile of each row alternates
+        white = not white
+        for row_index in range(1, 9):
+            tile_group.append(Tile(col_index, row_index, white))
+            white = not white  # tile colors alternate
 
     # -- surface groups --
     scale_surfs = [window, chess_board, chess_board_border, options_border]
@@ -69,12 +79,12 @@ def game(screen):
 
     # -- initialise fade variables --
     fade_duration = 30
-    initial_fade_scale = 3  # how many times longer the opening first fade takes, compared to normal fades
+    initial_fade_scale = 1  # how many times longer the opening first fade takes, compared to normal fades
     fade_spectrum_3d = []
     for surf in all_surfaces:
         fade_spectrum_3d.append(
-            colors.generate_spectrum(fade_duration * initial_fade_scale, colors.multi_theme[surf.name],
-                                     colors.default_theme[surf.name]))
+            colors.generate_spectrum(fade_duration * initial_fade_scale, engine_config.multi_theme[surf.name],
+                                     engine_config.default_theme[surf.name]))
     fade_counter = fade_duration * initial_fade_scale - 1
 
     # -- post resize events --
@@ -122,7 +132,6 @@ def game(screen):
 
             """ resize event"""
             if event.type == pygame.VIDEORESIZE:
-                print(event)
                 screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 window.resize(screen)
 
@@ -134,6 +143,9 @@ def game(screen):
                 # chess board
                 chess_board_border.resize(window.image)
                 chess_board.resize(chess_board_border.image)
+
+                for tile in tile_group:
+                    tile.resize(chess_board.image)
 
                 # evaluation bar
                 eval_bar_border.resize(window.image)
@@ -194,13 +206,14 @@ def game(screen):
                             active_color_theme = theme_button.click(True)  # theme button returns its theme dictionary
 
                             # ensure button was not already selected/ does not recolor in this way
-                            if (previous_col == active_color_theme and active_color_theme != colors.random_theme) or \
-                                    active_color_theme == colors.multi_theme:
+                            if (
+                                    previous_col == active_color_theme and active_color_theme != engine_config.random_theme) or \
+                                    active_color_theme == engine_config.multi_theme:
                                 break
 
                             # -- if random theme --
-                            if active_color_theme == colors.random_theme:
-                                for surf in scale_surfs + color_theme_buttons + other_buttons + static_surfs:
+                            if active_color_theme == engine_config.random_theme:
+                                for surf in scale_surfs + color_theme_buttons + other_buttons + static_surfs + tile_group:
                                     theme_button.click(False)
                                     # -- generate random color theme --
                                     surf.color_set = {surf.name: (random.randint(0, 255), random.randint(0, 255),
@@ -211,12 +224,16 @@ def game(screen):
                                                                   random.randint(0, 255)),
                                                       "RESET": (random.randint(0, 255), random.randint(0, 255),
                                                                 random.randint(0, 255)),
+                                                      "WHITE": (random.randint(0, 255), random.randint(0, 255),
+                                                                random.randint(0, 255)),
+                                                      "BLACK": (random.randint(0, 255), random.randint(0, 255),
+                                                                random.randint(0, 255))
                                                       }
 
-                                    # post resize event, to re-color surfaces
-                                    pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE,
-                                                                         {"w": screen.get_width(),
-                                                                          "h": screen.get_height()}))
+                                # post resize event, to re-color surfaces
+                                pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE,
+                                                                     {"w": screen.get_width(),
+                                                                      "h": screen.get_height()}))
 
                             # -- else apply pre-defined theme --
                             else:
@@ -248,14 +265,20 @@ def game(screen):
                 if event.unicode == "b":
                     # -- create bouncer --
                     for i in range(500):
-                        balls.append(Bouncy(screen.get_size(), (screen.get_width()//2, screen.get_height()//2)))
+                        balls.append(Bouncy(screen.get_size(), (screen.get_width() // 2, screen.get_height() // 2)))
 
                 if event.unicode == "r":
                     pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, {'w': screen.get_width(),
                                                                               'h': screen.get_height()}))
         """ draw surfaces """
         # draw mouse cursor
-        pygame.draw.circle(mouse_pointer, color_spectrum[frame],
+        if engine_config.RAINBOW_MOUSE:
+            mouse_color = color_spectrum[frame]
+        else:
+            window.image.fill(window.color)
+            mouse_color = (255, 0, 0)
+
+        pygame.draw.circle(mouse_pointer, mouse_color,
                            (mouse_pointer_size // 2, mouse_pointer_size // 2), mouse_pointer_size // 2)
 
         if len(balls) > 0:
@@ -267,7 +290,6 @@ def game(screen):
 
                 window.image.blit(ball.image, ball.rect)
             balls.remove(balls[0])
-
 
         if show_ui:
             # reset board
@@ -294,6 +316,10 @@ def game(screen):
             eval_bar_border.image.blit(eval_minimiser.image, eval_minimiser.rect)
             window.image.blit(eval_bar_border.image, eval_bar_border.rect)
 
+            # tiles
+            for tile in tile_group:
+                chess_board.image.blit(tile.image, tile.rect)
+
             # chess board
             chess_board_border.image.blit(chess_board.image, chess_board.rect)
             window.image.blit(chess_board_border.image, chess_board_border.rect)
@@ -306,7 +332,7 @@ def game(screen):
         screen.blit(window.image, window.rect)
         pygame.display.update()
 
-        clock.tick(30)
+        clock.tick(60)
 
 
 if __name__ == "__main__":

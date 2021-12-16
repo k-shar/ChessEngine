@@ -1,6 +1,6 @@
 import pygame
 from pygame import freetype
-import colors
+import engine_config
 
 
 class ScaleSurface(pygame.sprite.Sprite):
@@ -10,7 +10,7 @@ class ScaleSurface(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         self.name = name
-        self.color_set = colors.default_theme
+        self.color_set = engine_config.default_theme
         self.color = self.color_set[name]
 
         self.ratio = ratio
@@ -51,12 +51,13 @@ class ScaleSurface(pygame.sprite.Sprite):
 
 
 class TextSurface(ScaleSurface):
-    def __init__(self, color, ratio, alignment, padding, text, text_size):
+    def __init__(self, color, ratio, alignment, padding, text, text_size, text_color, text_loc):
         super().__init__(color, ratio, alignment, padding)
 
-        self.text_color = colors.default_theme["TEXT"]
+        self.text_color = engine_config.default_theme[text_color]
         self.active_text = text
         self.text_size = text_size
+        self.text_loc = text_loc
 
         self.text_surf, self.text_rect = None, None
         self.parent = None
@@ -78,12 +79,16 @@ class TextSurface(ScaleSurface):
         size = 1 if self.image.get_size() == (0, 0) else self.image.get_height() * self.text_size
         # render font
         self.text_surf, self.text_rect = font.render(text, fgcolor=self.text_color, size=size)
-        self.image.blit(self.text_surf, self.text_surf.get_rect(center=self.image.get_rect().center))
+
+        center = [self.image.get_rect().centerx, self.image.get_rect().centery]
+        center[0] *= self.text_loc[0]
+        center[1] *= self.text_loc[1]
+        self.image.blit(self.text_surf, self.text_surf.get_rect(center=center))
 
 
 class Button(TextSurface):
     def __init__(self, color, ratio, alignment, padding, text, text_size):
-        super().__init__(color, ratio, alignment, padding, text, text_size)
+        super().__init__(color, ratio, alignment, padding, text, text_size, "TEXT", (1, 1))
         self.hovered, self.clicked = False, False
 
     def hover(self, is_hovered):
@@ -141,10 +146,10 @@ class HintsToggle(Button):
     def __init__(self, alignment, text):
         super().__init__("BUTTON", (4, 1), alignment, 0.9, text, 0.5)
 
-        self.color = colors.blue_theme["BUTTON"]
-        self.text_color = colors.blue_theme["TEXT"]
+        self.color = engine_config.blue_theme["BUTTON"]
+        self.text_color = engine_config.blue_theme["TEXT"]
 
-        self.checkbox = TextSurface("BORDER", (1, 1), (0.9, 0.5), 0.7, "x", 0.9)
+        self.checkbox = TextSurface("BORDER", (1, 1), (0.9, 0.5), 0.7, "x", 0.9, "TEXT", (1, 1))
         self.parent = None
 
     def resize(self, parent):

@@ -1,18 +1,29 @@
 import pygame
+from window_sizing import TextSurface
+import engine_config
 
 
-class Tile(pygame.sprite.Sprite):
-    def __init__(self, key):
-        super().__init__()
+class Tile(TextSurface):
+    def __init__(self, col, row, is_white):
+        if is_white:
+            color_name = "WHITE"
+            font_color = "BLACK"
+        else:
+            color_name = "BLACK"
+            font_color = "WHITE"
 
-        self.image = pygame.Surface((1, 1))
-        self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect()
+        super().__init__(color_name, (1, 1), (col/8, row/8), 1/8, f"{chr(64 + col)}{row}", 0.3, font_color, (0.4, 0.4))
 
+    def resize(self, parent):
+        super().resize(parent)
+        # align the centers correctly
+        # as ScaleSurface is center aligned, but the chess tiles are aligned by their top left corner
+        self.rect.centerx = self.rect.x
+        self.rect.centery = self.rect.y
 
     def update(self, chess_board):
 
         self.image = pygame.Surface((chess_board.get_rect().height//2, chess_board.get_rect().width//2))
-        self.image.fill((255, 0, 0))
+        self.image.fill(self.color)
         self.rect = self.image.get_rect()
 
