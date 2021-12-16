@@ -30,17 +30,18 @@ def game(screen):
 
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
-    text_output = TextSurface("TEXT_OUTPUT", (5, 2), (0.5, 0.15), 0.93, "win/ lose", 0.4, "TEXT", (1, 1))
-    hint_move = HintsToggle((0.5, 0.37), "move hints   ")
-    hint_engine = HintsToggle((0.5, 0.52), "show engine   ")
-    reset_board = ResetButton("BORDER", (21, 4), (0.5, 0.92), 0.9, "reset board", 0.6)
+    text_output = TextSurface("TEXT_OUTPUT", (7, 2), (0.5, 0.13), 0.93, "win/ lose", 0.4, "TEXT", (1, 1))
+    coordinates = HintsToggle((0.5, 0.3), "coordinates   ")
+    hint_move = HintsToggle((0.5, 0.44), "move hints   ")
+    hint_engine = HintsToggle((0.5, 0.58), "show engine   ")
+    reset_board = ResetButton("BORDER", (7, 1), (0.5, 0.92), 0.93, "reset board", 0.6)
 
     # -- color theme selection --
-    color_theme_label = TextSurface("TEXT_OUTPUT", (6, 1), (0.5, 0.66), 0.93, "Color Themes", 0.6, "TEXT", (1, 1))
-    blue = ColorThemeButton((0.15, 0.79), "blue", engine_config.blue_theme)
-    purple = ColorThemeButton((0.38, 0.79), "purple", engine_config.purple_theme)
-    rainbow = ColorThemeButton((0.62, 0.79), "multi", engine_config.multi_theme)
-    random_theme = ColorThemeButton((0.85, 0.79), "random", engine_config.random_theme)
+    color_theme_label = TextSurface("TEXT_OUTPUT", (7, 1), (0.5, 0.71), 0.93, "Color Themes", 0.6, "TEXT", (1, 1))
+    blue = ColorThemeButton((0.15, 0.81), "blue", engine_config.blue_theme)
+    purple = ColorThemeButton((0.381, 0.81), "purple", engine_config.purple_theme)
+    rainbow = ColorThemeButton((0.61, 0.81), "multi", engine_config.multi_theme)
+    random_theme = ColorThemeButton((0.85, 0.81), "random", engine_config.random_theme)
 
     # -- initialise mouse pointer --
     mouse_pointer_size = 1  # actual size set on resize event
@@ -62,10 +63,10 @@ def game(screen):
 
     # -- surface groups --
     scale_surfs = [window, chess_board, chess_board_border, options_border]
-    other_buttons = [hint_move, hint_engine, reset_board]
+    hint_toggles = [hint_move, hint_engine, coordinates, reset_board]
     static_surfs = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser]
     color_theme_buttons = [blue, purple, rainbow, random_theme]
-    all_surfaces = scale_surfs + other_buttons + static_surfs + color_theme_buttons
+    all_surfaces = scale_surfs + hint_toggles + static_surfs + color_theme_buttons + tile_group
 
     """ Color creation """
     # set default color theme
@@ -157,15 +158,13 @@ def game(screen):
                 text_output.resize(options_border.image)
 
                 # hint buttons
-                hint_move.resize(options_border.image)
-                hint_engine.resize(options_border.image)
+                for surf in hint_toggles:
+                    surf.resize(options_border.image)
 
                 # - color themes -
                 color_theme_label.resize(options_border.image)
-                blue.resize(options_border.image)
-                purple.resize(options_border.image)
-                random_theme.resize(options_border.image)
-                rainbow.resize(options_border.image)
+                for surf in color_theme_buttons:
+                    surf.resize(options_border.image)
 
                 # resize button
                 reset_board.resize(options_border.image)
@@ -187,6 +186,13 @@ def game(screen):
                                        pygame.mouse.get_pos()[1] - window_offset[1] - options_offset[1]]
                 mouse_pointer_rect = pygame.Rect(relative_to_options[0], relative_to_options[1], mouse_pointer_size,
                                                  mouse_pointer_size)
+
+                # hover for hint toggles
+                for button in hint_toggles:
+                    if button.rect.colliderect(mouse_pointer_rect):
+                        button.hover(True)
+                    else:
+                        button.hover(False)
 
                 # check if mouse is hovering over a color theme button
                 for theme_button in color_theme_buttons:
@@ -213,7 +219,7 @@ def game(screen):
 
                             # -- if random theme --
                             if active_color_theme == engine_config.random_theme:
-                                for surf in scale_surfs + color_theme_buttons + other_buttons + static_surfs + tile_group:
+                                for surf in scale_surfs + color_theme_buttons + hint_toggles + static_surfs + tile_group:
                                     theme_button.click(False)
                                     # -- generate random color theme --
                                     surf.color_set = {surf.name: (random.randint(0, 255), random.randint(0, 255),
@@ -237,7 +243,7 @@ def game(screen):
 
                             # -- else apply pre-defined theme --
                             else:
-                                for surf in scale_surfs + color_theme_buttons + other_buttons + static_surfs:
+                                for surf in scale_surfs + color_theme_buttons + hint_toggles + static_surfs + tile_group:
                                     surf.color_set = active_color_theme
 
                                 # -- create color fade spectrum --
@@ -251,12 +257,6 @@ def game(screen):
                     else:
                         theme_button.hover(False)
 
-                # TODO: make more specific
-                for button in other_buttons:
-                    if button.rect.colliderect(mouse_pointer_rect):
-                        button.hover(True)
-                    else:
-                        button.hover(False)
 
             """ keypress """
             if event.type == pygame.KEYDOWN:
@@ -292,19 +292,15 @@ def game(screen):
             balls.remove(balls[0])
 
         if show_ui:
-            # reset board
-            options_border.image.blit(reset_board.image, reset_board.rect)
 
             # color themes
-            options_border.image.blit(blue.image, blue.rect)
-            options_border.image.blit(purple.image, purple.rect)
-            options_border.image.blit(rainbow.image, rainbow.rect)
-            options_border.image.blit(random_theme.image, random_theme.rect)
             options_border.image.blit(color_theme_label.image, color_theme_label.rect)
+            for surf in color_theme_buttons:
+                options_border.image.blit(surf.image, surf.rect)
 
             # hint buttons
-            options_border.image.blit(hint_move.image, hint_move.rect)
-            options_border.image.blit(hint_engine.image, hint_engine.rect)
+            for surf in hint_toggles:
+                options_border.image.blit(surf.image, surf.rect)
 
             # text output
             text_output.draw_text(str(len(balls)))

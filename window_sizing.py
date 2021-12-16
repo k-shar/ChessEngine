@@ -124,7 +124,7 @@ class ResetButton(Button):
 
 class ColorThemeButton(Button):
     def __init__(self, alignment, button_name, color_theme):
-        super().__init__("BUTTON", (1, 1), alignment, 0.19, button_name, 0.3)
+        super().__init__("BUTTON", (5, 3), alignment, 0.22, button_name, 0.4)
 
         self.color_theme = color_theme
         self.button_name = button_name  # primary text
@@ -137,14 +137,14 @@ class ColorThemeButton(Button):
             super().hover(True)
         else:
             self.active_text = self.button_name
-            self.text_size = 0.3
+            self.text_size = 0.4
         super().click(clicked)
         return self.color_theme
 
 
 class HintsToggle(Button):
     def __init__(self, alignment, text):
-        super().__init__("BUTTON", (4, 1), alignment, 0.9, text, 0.5)
+        super().__init__("BUTTON", (5, 1), alignment, 0.9, text, 0.6)
 
         self.color = engine_config.blue_theme["BUTTON"]
         self.text_color = engine_config.blue_theme["TEXT"]
