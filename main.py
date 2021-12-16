@@ -34,7 +34,7 @@ def game(screen):
     coordinates = HintsToggle((0.5, 0.3), "coordinates   ")
     hint_move = HintsToggle((0.5, 0.44), "move hints   ")
     hint_engine = HintsToggle((0.5, 0.58), "show engine   ")
-    reset_board = ResetButton("BORDER", (7, 1), (0.5, 0.92), 0.93, "reset board", 0.6)
+    reset_board = ResetButton("BORDER", (7, 1), (0.5, 0.92), 0.93, "~ reset board ~", 0.6)
 
     # -- color theme selection --
     color_theme_label = TextSurface("TEXT_OUTPUT", (7, 1), (0.5, 0.71), 0.93, "Color Themes", 0.6, "TEXT", (1, 1))
@@ -62,8 +62,8 @@ def game(screen):
             white = not white  # tile colors alternate
 
     # -- surface groups --
-    scale_surfs = [window, chess_board, chess_board_border, options_border]
-    hint_toggles = [hint_move, hint_engine, coordinates, reset_board]
+    scale_surfs = [window, chess_board, chess_board_border, options_border, reset_board]
+    hint_toggles = [hint_move, hint_engine, coordinates]
     static_surfs = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser]
     color_theme_buttons = [blue, purple, rainbow, random_theme]
     all_surfaces = scale_surfs + hint_toggles + static_surfs + color_theme_buttons + tile_group
@@ -160,6 +160,7 @@ def game(screen):
                 # hint buttons
                 for surf in hint_toggles:
                     surf.resize(options_border.image)
+                reset_board.resize(options_border.image)
 
                 # - color themes -
                 color_theme_label.resize(options_border.image)
@@ -187,12 +188,25 @@ def game(screen):
                 mouse_pointer_rect = pygame.Rect(relative_to_options[0], relative_to_options[1], mouse_pointer_size,
                                                  mouse_pointer_size)
 
+                # reset board option hover
+                if reset_board.rect.colliderect(mouse_pointer_rect):
+                    reset_board.hover(True)
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        reset_board.click(True)
+                else:
+                    reset_board.hover(False)
+
                 # hover for hint toggles
-                for button in hint_toggles:
-                    if button.rect.colliderect(mouse_pointer_rect):
-                        button.hover(True)
+                for hint_button in hint_toggles:
+                    if hint_button.rect.colliderect(mouse_pointer_rect):
+                        hint_button.hover(True)
+                        if event.type == pygame.MOUSEBUTTONUP:
+                            hint_button.click(not hint_button.is_clicked)
+                            pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE,
+                                                                 {"w": screen.get_width(),
+                                                                  "h": screen.get_height()}))
                     else:
-                        button.hover(False)
+                        hint_button.hover(False)
 
                 # check if mouse is hovering over a color theme button
                 for theme_button in color_theme_buttons:
@@ -301,6 +315,7 @@ def game(screen):
             # hint buttons
             for surf in hint_toggles:
                 options_border.image.blit(surf.image, surf.rect)
+            options_border.image.blit(reset_board.image, reset_board.rect)
 
             # text output
             text_output.draw_text(str(len(balls)))

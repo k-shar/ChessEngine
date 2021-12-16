@@ -149,8 +149,10 @@ class HintsToggle(Button):
         self.color = engine_config.blue_theme["BUTTON"]
         self.text_color = engine_config.blue_theme["TEXT"]
 
-        self.checkbox = TextSurface("BORDER", (1, 1), (0.9, 0.5), 0.7, "x", 0.9, "TEXT", (1, 1))
+        self.checkbox = Button("BORDER", (1, 1), (0.9, 0.5), 0.7, "x", 0.9)
         self.parent = None
+
+        self.is_clicked = False
 
     def resize(self, parent):
         super().resize(parent)
@@ -161,3 +163,11 @@ class HintsToggle(Button):
     def hover(self, is_hovered):
         super().hover(is_hovered)
         self.image.blit(self.checkbox.image, self.checkbox.rect)
+
+    def click(self, is_clicked):
+        self.is_clicked = is_clicked
+        if is_clicked:
+            self.checkbox.active_text = "√"
+        else:
+            self.checkbox.active_text = "x"
+        self.checkbox.draw_text(self.checkbox.active_text)
