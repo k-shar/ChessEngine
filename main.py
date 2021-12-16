@@ -14,6 +14,7 @@ def game(screen):
     pygame.mouse.set_visible(False)
     show_ui = True
     balls = []
+    SHOW_COORDINATES = False
 
     """ Initialise Surfaces """
 
@@ -31,6 +32,7 @@ def game(screen):
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
     text_output = TextSurface("TEXT_OUTPUT", (7, 2), (0.5, 0.13), 0.93, "win/ lose", 0.4, "TEXT", (1, 1))
+
     coordinates = HintsToggle((0.5, 0.3), "coordinates   ")
     hint_move = HintsToggle((0.5, 0.44), "move hints   ")
     hint_engine = HintsToggle((0.5, 0.58), "show engine   ")
@@ -95,7 +97,6 @@ def game(screen):
 
     """ Game Loop """
     while True:
-
         """ Update every frame """
         screen.fill(active_color_theme["SCREEN"])
 
@@ -205,6 +206,10 @@ def game(screen):
                             pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE,
                                                                  {"w": screen.get_width(),
                                                                   "h": screen.get_height()}))
+
+                            # take action depending on what button was pressed
+                            if hint_button.active_text == "coordinates   ":
+                                SHOW_COORDINATES = not SHOW_COORDINATES
                     else:
                         hint_button.hover(False)
 
@@ -283,7 +288,7 @@ def game(screen):
 
                 if event.unicode == "r":
                     pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, {'w': screen.get_width(),
-                                                                              'h': screen.get_height()}))
+                                                                             'h': screen.get_height()}))
         """ draw surfaces """
         # draw mouse cursor
         if engine_config.RAINBOW_MOUSE:
@@ -329,6 +334,11 @@ def game(screen):
 
             # tiles
             for tile in tile_group:
+                if SHOW_COORDINATES:
+                    tile.active_text = tile.coordinate
+                else:
+                    tile.active_text = " "
+
                 chess_board.image.blit(tile.image, tile.rect)
 
             # chess board

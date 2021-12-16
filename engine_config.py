@@ -1,6 +1,4 @@
-
 RAINBOW_MOUSE = False
-SHOW_TILE_NUMBERS = False
 
 """ color themes """
 blue_theme = {
