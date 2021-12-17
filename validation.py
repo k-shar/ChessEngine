@@ -1,5 +1,6 @@
 def is_valid_fen(FEN):
 
+    # split the FEN into its component parts for testing individually
     FEN = FEN.split()
 
     # -- check piece position is valid --
@@ -10,6 +11,7 @@ def is_valid_fen(FEN):
         return Exception(f"There are {len(piece_position)} rows in the given FEN (should be 8)")
 
     # check there are enough columns in each row
+    # and that each item in the row is valid
     for row in piece_position:
         total_columns = 0
         for item in row:
@@ -41,10 +43,10 @@ def is_valid_fen(FEN):
 
 
 if __name__ == "__main__":
+    # unit test cases
     print(is_valid_fen("rnbqkbnr/ppppppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"))
     print(is_valid_fen("pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"))
     print(is_valid_fen("rnbqkbnX/ppppPpppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"))
     print(is_valid_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR G KQkq"))
     print(is_valid_fen("2p2p2/8/7p/8/8/4p3/8/8 w KQkq"))
-    print(is_valid_fen("8/8/8/8/8/8/8/8 w --kq"))
     print(is_valid_fen("8/8/8/8/8/8/8/8 w --XX"))
