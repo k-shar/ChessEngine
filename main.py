@@ -294,7 +294,8 @@ def game(screen):
         if engine_config.RAINBOW_MOUSE:
             mouse_color = color_spectrum[frame]
         else:
-            window.image.fill(window.color)
+            if not rainbow.clicked and len(balls) == 0:
+                window.image.fill(window.color)
             mouse_color = (255, 0, 0)
 
         pygame.draw.circle(mouse_pointer, mouse_color,
@@ -323,7 +324,7 @@ def game(screen):
             options_border.image.blit(reset_board.image, reset_board.rect)
 
             # text output
-            text_output.draw_text(str(len(balls)))
+            # text_output.draw_text(str(len(balls)))
             options_border.image.blit(text_output.image, text_output.rect)
             window.image.blit(options_border.image, options_border.rect)
 
