@@ -110,7 +110,7 @@ def game(screen):
         else:
             screen.fill(current_color_theme["SCREEN"])
 
-        if not MOUSE_TRAIL and len(balls) == 0:
+        if not MOUSE_TRAIL and len(balls) == 0 and not multi.clicked:
             window.image.fill(current_color_theme["WINDOW"])
 
         # -- fade between colors, if in transition --
@@ -273,8 +273,8 @@ def game(screen):
                             # update all surfs with new colors
                             for surf in all_surfaces_group:
                                 surf.color_set = current_color_theme
-                            # TODO: make tile colors work with font
                             for tile in tile_group:
+                                tile.color_set = current_color_theme
                                 tile.setcolor(None)
 
                             # -- create color fade spectrum --
