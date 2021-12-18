@@ -3,7 +3,8 @@ import pygame
 import engine_config
 from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton
 from tiles import Tile
-from pieces import Pawn
+from pieces import *
+from validation import is_valid_fen
 import colors
 import random
 from bouncing_ball import Bouncy
@@ -22,8 +23,11 @@ def game(screen):
     # config
     SHOW_COORDINATES = False
     RAINBOW_MOUSE = True
+    MOUSE_TRAIL = False
     RAINBOW_COLOR_SPECTRUM_SIZE = 300
     FADE_DURATION = 15
+    STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
+    is_valid_fen(STARTING_FEN)
 
     """ Initialise Surfaces """
     window = ScaleSurface("WINDOW", (16, 9), (0.5, 0.5), 1)
@@ -51,7 +55,7 @@ def game(screen):
     blue = ColorThemeButton((0.15, 0.81), "blue", engine_config.blue_theme)
     purple = ColorThemeButton((0.381, 0.81), "purple", engine_config.purple_theme)
     multi = ColorThemeButton((0.61, 0.81), "multi", engine_config.all_black)
-    green = ColorThemeButton((0.85, 0.81), "green", engine_config.old_green_theme)
+    green = ColorThemeButton((0.85, 0.81), "green", engine_config.green_theme)
 
     # -- initialise mouse pointer --
     mouse_pointer = pygame.Surface([1, 1])
@@ -67,9 +71,7 @@ def game(screen):
             white = not white  # tile colors alternate
 
     """ Piece generation """
-    piece_group = []
-    for i in range(5):
-        piece_group.append(Pawn("black", random.randint(1, 63)))
+    piece_group = instasiate_pieces(STARTING_FEN)
 
     # -- surface groups --
     scale_surf_group = [window, chess_board, chess_board_border, options_border, reset_board]
@@ -107,6 +109,9 @@ def game(screen):
             window.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 2])
         else:
             screen.fill(current_color_theme["SCREEN"])
+
+        if not MOUSE_TRAIL and len(balls) == 0:
+            window.image.fill(current_color_theme["WINDOW"])
 
         # -- fade between colors, if in transition --
         if fade_indexer > 0:
@@ -191,14 +196,6 @@ def game(screen):
 
                 mouse_pointer_rect = pygame.Rect(relative_to_options[0], relative_to_options[1],
                                                  mouse_pointer_size, mouse_pointer_size)
-
-                """ reset-board option hover """
-                if reset_board.rect.colliderect(mouse_pointer_rect):
-                    reset_board.hover(True)
-                    if event.type == pygame.MOUSEBUTTONUP:
-                        reset_board.click(True)
-                else:
-                    reset_board.hover(False)
 
                 """ piece highlight on hover """
                 tile_size = tile_group[0].rect.width
@@ -291,6 +288,23 @@ def game(screen):
                     # if there was no collision for the color theme button
                     else:
                         theme_button.hover(False)
+
+                """ reset-board option hover """
+                if reset_board.rect.colliderect(mouse_pointer_rect):
+                    reset_board.hover(True)
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        reset_board.click(True)
+
+                        # clear all tiles to remove old piece sprites
+                        for tile in tile_group:
+                            tile.image.fill(tile.color)
+
+                        piece_group = instasiate_pieces(STARTING_FEN)
+                        # size pieces up
+                        for piece in piece_group:
+                            piece.resize(tile_group[piece.tile_index].image.get_rect().size, 1)
+                else:
+                    reset_board.hover(False)
 
             """ keypress """
             if event.type == pygame.KEYDOWN:

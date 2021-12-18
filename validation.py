@@ -8,7 +8,7 @@ def is_valid_fen(FEN):
 
     # check that there are enough rows
     if len(piece_position) != 8:
-        return Exception(f"There are {len(piece_position)} rows in the given FEN (should be 8)")
+        raise Exception(f"There are {len(piece_position)} rows in the given FEN (should be 8)")
 
     # check there are enough columns in each row
     # and that each item in the row is valid
@@ -20,14 +20,14 @@ def is_valid_fen(FEN):
             elif item.lower() in ["p", "r", "n", "b", "q", "k"]:
                 total_columns += 1
             else:
-                return Exception(f"Item '{item}' is not a valid piece name/ empty square count")
+                raise Exception(f"Item '{item}' is not a valid piece name/ empty square count")
         if total_columns != 8:
-            return Exception(f"Row '{row}' does has {total_columns} columns worth of information (should be 8)")
+            raise Exception(f"Row '{row}' does has {total_columns} columns worth of information (should be 8)")
 
     # -- check active color is valid --
     active_color = FEN[1]
     if active_color not in ["w", "b"]:
-        return Exception(f"Invalid active color '{active_color}' is not valid (should be 'w' or 'b')")
+        raise Exception(f"Invalid active color '{active_color}' is not valid (should be 'w' or 'b')")
 
     # -- check castling rights are valid --
     legal = True
@@ -37,7 +37,7 @@ def is_valid_fen(FEN):
     if castling_rights[2] not in ["k", "-"]: legal = False
     if castling_rights[3] not in ["q", "-"]: legal = False
     if not legal:
-        return Exception(f"Invalid castling rights '{castling_rights}'")
+        raise Exception(f"Invalid castling rights '{castling_rights}'")
 
     return True
 

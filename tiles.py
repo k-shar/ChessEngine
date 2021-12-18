@@ -14,8 +14,8 @@ class Tile(TextSurface):
         self.pos = [col, row]
         self.tile_index = tile_index
 
-        # self.coordinate = str(tile_index)
         self.coordinate = f"{chr(64 + col)}{9 - row}"
+        self.coordinate = str(tile_index)
         super().__init__(color_name, (1, 1), (col/8, row/8), 1/8, self.coordinate, 0.3, font_color, (0.4, 0.4))
 
     def setcolor(self, color):

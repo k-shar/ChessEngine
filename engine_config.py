@@ -26,8 +26,8 @@ purple_theme = {
     "SCREEN": (37, 6, 76),
     "WINDOW": (85, 50, 133),
 
-    "WHITE": (255, 255, 255),
-    "BLACK": (0, 0, 0),
+    "WHITE": (235, 235, 235),
+    "BLACK": (139, 116, 180),
 
     "BORDER": (0, 0, 0),
 
@@ -37,18 +37,18 @@ purple_theme = {
     "TEXT_OUTPUT": (143, 0, 255),
 
     "BUTTON": (0, 103, 166),
-    "HOVERED": (151, 104, 209),
+    "HOVERED": (150, 237, 137),
 
     "TEXT": (255, 255, 255),
     "RESET": (255, 0, 0)
 }
 
-old_green_theme = {
+green_theme = {
     "SCREEN": (13, 26, 8),
     "WINDOW": (58, 120, 34),
 
-    "WHITE": (255, 255, 255),
-    "BLACK": (0, 0, 0),
+    "WHITE": (232, 234, 229),
+    "BLACK": (51, 105, 75),
 
     "BORDER": (0, 0, 0),
 
