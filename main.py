@@ -10,7 +10,7 @@ from bouncing_ball import Bouncy
 
 
 def game(screen):
-    pygame.display.set_caption("Iteration 1.3 chess engine")
+    pygame.display.set_caption("Iteration 1.5 chess engine")
     clock = pygame.time.Clock()
     pygame.mouse.set_visible(False)
     show_ui = True
@@ -59,7 +59,7 @@ def game(screen):
         # the color of the first tile of each row alternates
         white = not white
         for col_index in range(1, 9):
-            tile_group.append(Tile(col_index, row_index, white))
+            tile_group.append(Tile(col_index, row_index, white, len(tile_group)))
             white = not white  # tile colors alternate
 
     """ Piece generation """
@@ -85,7 +85,7 @@ def game(screen):
     color_spectrum = color_spectrum * 2  # *2 to avoid an out of phase surface indexing an item out of the array
 
     # -- initialise fade variables --
-    fade_duration = 30
+    fade_duration = 15
     initial_fade_scale = 1  # how many times longer the opening first fade takes, compared to normal fades
     fade_spectrum_3d = []
     for surf in all_surfaces_group:
@@ -192,12 +192,13 @@ def game(screen):
             #     for i in range(30):
             #         balls.append(Bouncy(screen.get_size(), (pygame.mouse.get_pos())))
 
-            """ any mouse click """
-            if event.type == pygame.MOUSEBUTTONUP:
-                # deselect all the pieces
-                for piece in piece_group:
-                    piece.selected = False
-                active_piece = None
+            # """ any mouse click """
+            # if event.type == pygame.MOUSEBUTTONUP:
+            #     # deselect all the pieces
+            #     for piece in piece_group:
+            #         piece.selected = False
+            #     active_piece = None
+
 
             """ - hover or click events - """
             if (event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONUP) and fade_counter <= 0:
@@ -207,7 +208,7 @@ def game(screen):
                 mouse_pointer_rect = pygame.Rect(relative_to_options[0], relative_to_options[1], mouse_pointer_size,
                                                  mouse_pointer_size)
 
-                """ reset board option hover """
+                """ reset-board option hover """
                 if reset_board.rect.colliderect(mouse_pointer_rect):
                     reset_board.hover(True)
                     if event.type == pygame.MOUSEBUTTONUP:
@@ -223,6 +224,7 @@ def game(screen):
                     if piece.image.get_rect().collidepoint([pygame.mouse.get_pos()[0] - chess_board_offset[0] - tile_offset[0],
                                                             pygame.mouse.get_pos()[1] - chess_board_offset[1] - tile_offset[1]]):
                         piece.hover(True)
+                        # if mouse clicked, select piece
                         if event.type == pygame.MOUSEBUTTONUP:
                             piece.selected = True
                     else:
@@ -234,16 +236,20 @@ def game(screen):
                                    tile.pos[1] * tile_size - tile_size]
                     if tile.image.get_rect().collidepoint([pygame.mouse.get_pos()[0] - chess_board_offset[0] - tile_offset[0],
                                                            pygame.mouse.get_pos()[1] - chess_board_offset[1] - tile_offset[1]]):
-
+                        # if mouse clicked
                         if event.type == pygame.MOUSEBUTTONUP:
-                            for other_tile in tile_group:
-                                other_tile.click(False)
-                            tile.click(True)
+                            # for other_tile in tile_group:
+                            #     other_tile.click(False)
+                            # tile.click(True)
 
-                # if event.type == pygame.MOUSEBUTTONUP:
-                #     for tile in tile_group:
-                #         tile.click(False)
-                #     tile_group[piece.tile_index].click(True)
+                            # if a piece is selected, place it on this tile
+                            if active_piece is not None:
+                                tile = tile_group[active_piece.tile_index]
+                                tile.image.fill(tile.color)
+                                active_piece.tile_index = tile.tile_index
+                                active_piece.selected = False
+                                active_piece = None
+
 
                 """ hint toggle hover """
                 for hint_button in hint_toggle_group:
@@ -382,23 +388,23 @@ def game(screen):
             eval_bar_border.image.blit(eval_minimiser.image, eval_minimiser.rect)
             window.image.blit(eval_bar_border.image, eval_bar_border.rect)
 
+            # pieces
+            for piece in piece_group:
+                tile = tile_group[piece.tile_index]
+                if piece.selected:
+                    active_piece = piece
+                    tile.image.fill(tile.color_set["HOVERED"])
+                else:
+                    tile.image.fill(tile.color)
+                    tile.image.blit(piece.image, piece.rect)
+
             # tiles
             for tile in tile_group:
                 if SHOW_COORDINATES:
                     tile.active_text = tile.coordinate
                 else:
                     tile.active_text = " "
-
                 chess_board.image.blit(tile.image, tile.rect)
-
-            # pieces
-            for piece in piece_group:
-                tile = tile_group[piece.tile_index]
-                tile.image.fill(tile.active_color)
-                if piece.selected:
-                    active_piece = piece.image
-                else:
-                    tile.image.blit(piece.image, piece.rect)
 
             # chess board
             chess_board_border.image.blit(chess_board.image, chess_board.rect)
@@ -412,8 +418,8 @@ def game(screen):
         screen.blit(window.image, window.rect)
 
         if active_piece is not None:
-            screen.blit(active_piece, [pygame.mouse.get_pos()[0] - active_piece.get_rect().width // 2 ,
-                                       pygame.mouse.get_pos()[1] - active_piece.get_rect().height // 2])
+            screen.blit(active_piece.image, [pygame.mouse.get_pos()[0] - active_piece.rect.width // 2,
+                                             pygame.mouse.get_pos()[1] - active_piece.rect.height // 2])
 
         pygame.display.update()
 
