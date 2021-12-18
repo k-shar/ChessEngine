@@ -3,6 +3,7 @@ import pygame
 import engine_config
 from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton
 from tiles import Tile
+from pieces import Pawn
 import colors
 import random
 from bouncing_ball import Bouncy
@@ -15,6 +16,7 @@ def game(screen):
     show_ui = True
     balls = []
     SHOW_COORDINATES = False
+    active_piece = None
 
     """ Initialise Surfaces """
 
@@ -22,7 +24,7 @@ def game(screen):
 
     # -- chess board and border --
     chess_board_border = ScaleSurface("BORDER", (1, 1), (0.35, 0.5), 0.9)
-    chess_board = ScaleSurface("CHESS_BOARD", (1, 1), (0.5, 0.5), 0.95)
+    chess_board = ScaleSurface("BLACK", (1, 1), (0.5, 0.5), 0.95)
 
     # -- evaluation bar --
     eval_bar_border = ScaleSurface("BORDER", (1, 14), (0.045, 0.5), 0.95)
@@ -49,26 +51,28 @@ def game(screen):
     mouse_pointer_size = 1  # actual size set on resize event
     mouse_pointer = pygame.Surface([mouse_pointer_size] * 2)
     mouse_pointer.set_colorkey((0, 0, 0))
-    # - offsets for mouse pointer -
-    window_offset = [0, 0]  # distance from window from screen
-    options_offset = [0, 0]  # distance from options menu to screen
 
     """ Tile generation """
     tile_group = []
     white = False
-    for col_index in range(1, 9):
+    for row_index in range(1, 9):
         # the color of the first tile of each row alternates
         white = not white
-        for row_index in range(1, 9):
+        for col_index in range(1, 9):
             tile_group.append(Tile(col_index, row_index, white))
             white = not white  # tile colors alternate
 
+    """ Piece generation """
+    piece_group = []
+    for i in range(10):
+        piece_group.append(Pawn("black", random.randint(1, 63)))
+
     # -- surface groups --
-    scale_surfs = [window, chess_board, chess_board_border, options_border, reset_board]
-    hint_toggles = [hint_move, hint_engine, coordinates]
-    static_surfs = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser]
-    color_theme_buttons = [blue, purple, rainbow, random_theme]
-    all_surfaces = scale_surfs + hint_toggles + static_surfs + color_theme_buttons + tile_group
+    scale_surf_group = [window, chess_board, chess_board_border, options_border, reset_board]
+    hint_toggle_group = [hint_move, hint_engine, coordinates]
+    static_surf_group = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser]
+    color_theme_button_group = [blue, purple, rainbow, random_theme]
+    all_surfaces_group = scale_surf_group + hint_toggle_group + static_surf_group + color_theme_button_group + tile_group
 
     """ Color creation """
     # set default color theme
@@ -84,7 +88,7 @@ def game(screen):
     fade_duration = 30
     initial_fade_scale = 1  # how many times longer the opening first fade takes, compared to normal fades
     fade_spectrum_3d = []
-    for surf in all_surfaces:
+    for surf in all_surfaces_group:
         fade_spectrum_3d.append(
             colors.generate_spectrum(fade_duration * initial_fade_scale, engine_config.multi_theme[surf.name],
                                      engine_config.default_theme[surf.name]))
@@ -114,8 +118,8 @@ def game(screen):
 
         # -- fade between colors --
         if fade_counter > 0:
-            for i in range(len(all_surfaces)):
-                surf = all_surfaces[i]
+            for i in range(len(all_surfaces_group)):
+                surf = all_surfaces_group[i]
                 surf.setcolor(fade_spectrum_3d[i][fade_counter])
 
                 if type(surf) == HintsToggle:
@@ -146,8 +150,13 @@ def game(screen):
                 chess_board_border.resize(window.image)
                 chess_board.resize(chess_board_border.image)
 
+                # tiles
                 for tile in tile_group:
                     tile.resize(chess_board.image)
+
+                # pieces
+                for piece in piece_group:
+                    piece.resize(tile_group[piece.tile_index].image.get_rect().size, 1)
 
                 # evaluation bar
                 eval_bar_border.resize(window.image)
@@ -159,13 +168,13 @@ def game(screen):
                 text_output.resize(options_border.image)
 
                 # hint buttons
-                for surf in hint_toggles:
+                for surf in hint_toggle_group:
                     surf.resize(options_border.image)
                 reset_board.resize(options_border.image)
 
                 # - color themes -
                 color_theme_label.resize(options_border.image)
-                for surf in color_theme_buttons:
+                for surf in color_theme_button_group:
                     surf.resize(options_border.image)
 
                 # resize button
@@ -174,14 +183,23 @@ def game(screen):
                 # -- set mouse pointer offsets --
                 window_offset = window.rect.topleft
                 options_offset = options_border.rect.topleft
+                chess_board_offset = [chess_board.rect.topleft[0] + chess_board_border.rect.topleft[0] + window_offset[0],
+                                      chess_board.rect.topleft[1] + chess_board_border.rect.topleft[1] + window_offset[1]]
+
+
+            # if event.type == pygame.MOUSEBUTTONUP and not show_ui:
+            #     # -- create bouncer --
+            #     for i in range(30):
+            #         balls.append(Bouncy(screen.get_size(), (pygame.mouse.get_pos())))
 
             """ any mouse click """
-            if event.type == pygame.MOUSEBUTTONUP and not show_ui:
-                # -- create bouncer --
-                for i in range(30):
-                    balls.append(Bouncy(screen.get_size(), (pygame.mouse.get_pos())))
+            if event.type == pygame.MOUSEBUTTONUP:
+                # deselect all the pieces
+                for piece in piece_group:
+                    piece.selected = False
+                active_piece = None
 
-            """ button hover or click """
+            """ - hover or click events - """
             if (event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONUP) and fade_counter <= 0:
                 # -- set mouse_pointer offsets and rect --
                 relative_to_options = [pygame.mouse.get_pos()[0] - window_offset[0] - options_offset[0],
@@ -189,7 +207,7 @@ def game(screen):
                 mouse_pointer_rect = pygame.Rect(relative_to_options[0], relative_to_options[1], mouse_pointer_size,
                                                  mouse_pointer_size)
 
-                # reset board option hover
+                """ reset board option hover """
                 if reset_board.rect.colliderect(mouse_pointer_rect):
                     reset_board.hover(True)
                     if event.type == pygame.MOUSEBUTTONUP:
@@ -197,10 +215,42 @@ def game(screen):
                 else:
                     reset_board.hover(False)
 
-                # hover for hint toggles
-                for hint_button in hint_toggles:
+                """ piece highlight on hover """
+                tile_size = tile_group[0].rect.width
+                for piece in piece_group:
+                    tile_offset = [tile_group[piece.tile_index].pos[0] * tile_size - tile_size,
+                                   tile_group[piece.tile_index].pos[1] * tile_size - tile_size]
+                    if piece.image.get_rect().collidepoint([pygame.mouse.get_pos()[0] - chess_board_offset[0] - tile_offset[0],
+                                                            pygame.mouse.get_pos()[1] - chess_board_offset[1] - tile_offset[1]]):
+                        piece.hover(True)
+                        if event.type == pygame.MOUSEBUTTONUP:
+                            piece.selected = True
+                    else:
+                        piece.hover(False)
+
+                """ tiles hover """
+                for tile in tile_group:
+                    tile_offset = [tile.pos[0] * tile_size - tile_size,
+                                   tile.pos[1] * tile_size - tile_size]
+                    if tile.image.get_rect().collidepoint([pygame.mouse.get_pos()[0] - chess_board_offset[0] - tile_offset[0],
+                                                           pygame.mouse.get_pos()[1] - chess_board_offset[1] - tile_offset[1]]):
+
+                        if event.type == pygame.MOUSEBUTTONUP:
+                            for other_tile in tile_group:
+                                other_tile.click(False)
+                            tile.click(True)
+
+                # if event.type == pygame.MOUSEBUTTONUP:
+                #     for tile in tile_group:
+                #         tile.click(False)
+                #     tile_group[piece.tile_index].click(True)
+
+                """ hint toggle hover """
+                for hint_button in hint_toggle_group:
                     if hint_button.rect.colliderect(mouse_pointer_rect):
                         hint_button.hover(True)
+
+                        """ hint toggle click """
                         if event.type == pygame.MOUSEBUTTONUP:
                             hint_button.click(not hint_button.is_clicked)
                             pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE,
@@ -213,19 +263,19 @@ def game(screen):
                     else:
                         hint_button.hover(False)
 
-                # check if mouse is hovering over a color theme button
-                for theme_button in color_theme_buttons:
+                """ color theme button hover """
+                for theme_button in color_theme_button_group:
 
                     # -- apply hover effect --
                     if theme_button.rect.colliderect(mouse_pointer_rect):
                         theme_button.hover(True)
 
-                        # -- if mouse is also clicking --
+                        """ color theme click """
                         if event.type == pygame.MOUSEBUTTONUP:
 
                             previous_col = active_color_theme
                             # de-select all other buttons
-                            for other_button in color_theme_buttons:
+                            for other_button in color_theme_button_group:
                                 other_button.click(False)
                             # select clicked button
                             active_color_theme = theme_button.click(True)  # theme button returns its theme dictionary
@@ -238,7 +288,7 @@ def game(screen):
 
                             # -- if random theme --
                             if active_color_theme == engine_config.random_theme:
-                                for surf in scale_surfs + color_theme_buttons + hint_toggles + static_surfs + tile_group:
+                                for surf in scale_surf_group + color_theme_button_group + hint_toggle_group + static_surf_group + tile_group:
                                     theme_button.click(False)
                                     # -- generate random color theme --
                                     surf.color_set = {surf.name: (random.randint(0, 255), random.randint(0, 255),
@@ -262,12 +312,12 @@ def game(screen):
 
                             # -- else apply pre-defined theme --
                             else:
-                                for surf in scale_surfs + color_theme_buttons + hint_toggles + static_surfs + tile_group:
+                                for surf in scale_surf_group + color_theme_button_group + hint_toggle_group + static_surf_group + tile_group:
                                     surf.color_set = active_color_theme
 
                                 # -- create color fade spectrum --
                                 fade_spectrum_3d = []
-                                for surf in all_surfaces:
+                                for surf in all_surfaces_group:
                                     fade_spectrum_3d.append(
                                         colors.generate_spectrum(fade_duration, previous_col[surf.name],
                                                                  active_color_theme[surf.name]))
@@ -275,7 +325,6 @@ def game(screen):
 
                     else:
                         theme_button.hover(False)
-
 
             """ keypress """
             if event.type == pygame.KEYDOWN:
@@ -288,7 +337,7 @@ def game(screen):
 
                 if event.unicode == "r":
                     pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, {'w': screen.get_width(),
-                                                                             'h': screen.get_height()}))
+                                                                              'h': screen.get_height()}))
         """ draw surfaces """
         # draw mouse cursor
         if engine_config.RAINBOW_MOUSE:
@@ -315,11 +364,11 @@ def game(screen):
 
             # color themes
             options_border.image.blit(color_theme_label.image, color_theme_label.rect)
-            for surf in color_theme_buttons:
+            for surf in color_theme_button_group:
                 options_border.image.blit(surf.image, surf.rect)
 
             # hint buttons
-            for surf in hint_toggles:
+            for surf in hint_toggle_group:
                 options_border.image.blit(surf.image, surf.rect)
             options_border.image.blit(reset_board.image, reset_board.rect)
 
@@ -342,6 +391,15 @@ def game(screen):
 
                 chess_board.image.blit(tile.image, tile.rect)
 
+            # pieces
+            for piece in piece_group:
+                tile = tile_group[piece.tile_index]
+                tile.image.fill(tile.active_color)
+                if piece.selected:
+                    active_piece = piece.image
+                else:
+                    tile.image.blit(piece.image, piece.rect)
+
             # chess board
             chess_board_border.image.blit(chess_board.image, chess_board.rect)
             window.image.blit(chess_board_border.image, chess_board_border.rect)
@@ -352,6 +410,11 @@ def game(screen):
 
         # window
         screen.blit(window.image, window.rect)
+
+        if active_piece is not None:
+            screen.blit(active_piece, [pygame.mouse.get_pos()[0] - active_piece.get_rect().width // 2 ,
+                                       pygame.mouse.get_pos()[1] - active_piece.get_rect().height // 2])
+
         pygame.display.update()
 
         clock.tick(60)

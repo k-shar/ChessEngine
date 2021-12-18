@@ -1,15 +1,14 @@
-RAINBOW_MOUSE = False
+RAINBOW_MOUSE = True
 
 """ color themes """
 blue_theme = {
     "SCREEN": (6, 65, 76),
     "WINDOW": (23, 89, 101),
 
-    "WHITE": (255, 255, 255),
-    "BLACK": (0, 0, 0),
+    "WHITE": (179, 179, 179),
+    "BLACK": (88, 88, 88),
 
     "BORDER": (0, 0, 0),
-    "CHESS_BOARD": (0, 0, 0),
 
     "MAXIMISER": (0, 0, 0),
     "MINIMISER": (255, 255, 255),
@@ -31,7 +30,6 @@ purple_theme = {
     "BLACK": (0, 0, 0),
 
     "BORDER": (0, 0, 0),
-    "CHESS_BOARD": (0, 0, 0),
 
     "MAXIMISER": (0, 0, 0),
     "MINIMISER": (255, 255, 255),
@@ -53,7 +51,6 @@ old_green_theme = {
     "BLACK": (0, 0, 0),
 
     "BORDER": (0, 0, 0),
-    "CHESS_BOARD": (0, 0, 0),
 
     "MAXIMISER": (231, 118, 106),
     "MINIMISER": (80, 175, 101),
@@ -75,7 +72,6 @@ all_black = {
     "BLACK": (0, 0, 0),
 
     "BORDER": (0, 0, 0),
-    "CHESS_BOARD": (0, 0, 0),
 
     "MAXIMISER": (0, 0, 0),
     "MINIMISER": (0, 0, 0),
