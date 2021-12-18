@@ -1,4 +1,4 @@
-RAINBOW_MOUSE = True
+
 
 """ color themes """
 blue_theme = {
@@ -86,7 +86,6 @@ all_black = {
 }
 
 default_theme = blue_theme.copy()
-multi_theme = all_black.copy()
 
 random_theme = all_black.copy()
 random_theme["WINDOW"] = (1, 2, 3)

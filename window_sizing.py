@@ -158,6 +158,9 @@ class HintsToggle(Button):
         super().resize(parent)
         self.parent = parent
         self.checkbox.resize(self.image)
+        self.draw_checkbox()
+
+    def draw_checkbox(self):
         self.image.blit(self.checkbox.image, self.checkbox.rect)
 
     def hover(self, is_hovered):
