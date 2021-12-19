@@ -1,4 +1,8 @@
-
+# config
+RAINBOW_MOUSE = False
+MOUSE_TRAIL = False
+RAINBOW_COLOR_SPECTRUM_SIZE = 300
+FADE_DURATION = 15
 
 """ color themes """
 blue_theme = {

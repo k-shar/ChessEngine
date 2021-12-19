@@ -1,6 +1,6 @@
 # -- imports --
 import pygame
-import engine_config
+from engine_config import *
 from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton
 from tiles import Tile
 from pieces import *
@@ -17,15 +17,10 @@ def game(screen):
 
     active_piece = None
     show_ui = True
+    show_coordinates = False
     balls = []
     fade_indexer = 0
 
-    # config
-    SHOW_COORDINATES = False
-    RAINBOW_MOUSE = True
-    MOUSE_TRAIL = False
-    RAINBOW_COLOR_SPECTRUM_SIZE = 300
-    FADE_DURATION = 15
     STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
     is_valid_fen(STARTING_FEN)
 
@@ -52,10 +47,10 @@ def game(screen):
 
     # -- color theme selection --
     color_theme_label = TextSurface("TEXT_OUTPUT", (7, 1), (0.5, 0.71), 0.93, "Color Themes", 0.6, "TEXT", (1, 1))
-    blue = ColorThemeButton((0.15, 0.81), "blue", engine_config.blue_theme)
-    purple = ColorThemeButton((0.381, 0.81), "purple", engine_config.purple_theme)
-    multi = ColorThemeButton((0.61, 0.81), "multi", engine_config.all_black)
-    green = ColorThemeButton((0.85, 0.81), "green", engine_config.green_theme)
+    blue = ColorThemeButton((0.15, 0.81), "blue", blue_theme)
+    purple = ColorThemeButton((0.381, 0.81), "purple", purple_theme)
+    multi = ColorThemeButton((0.61, 0.81), "multi", all_black)
+    green = ColorThemeButton((0.85, 0.81), "green", green_theme)
 
     # -- initialise mouse pointer --
     mouse_pointer = pygame.Surface([1, 1])
@@ -245,7 +240,7 @@ def game(screen):
 
                             # take action depending on what button was pressed
                             if hint_button.active_text == "coordinates   ":
-                                SHOW_COORDINATES = not SHOW_COORDINATES
+                                show_coordinates = not show_coordinates
                     else:
                         hint_button.hover(False)
 
@@ -374,7 +369,7 @@ def game(screen):
 
             # tiles
             for tile in tile_group:
-                if SHOW_COORDINATES:
+                if show_coordinates:
                     tile.active_text = tile.coordinate
                 else:
                     tile.active_text = " "
