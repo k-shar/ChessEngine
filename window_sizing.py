@@ -1,7 +1,7 @@
 import pygame
 from pygame import freetype
 import engine_config
-
+from evaluation import normalise_evaluation
 
 class ScaleSurface(pygame.sprite.Sprite):
     def __init__(self, name, ratio, alignment, padding):
@@ -180,16 +180,16 @@ class EvaluationSlider(ScaleSurface):
     def __init__(self, name, is_top):
         self.slide = 0.8
         self.is_top = is_top
-        super().__init__(name, (1, 16), (0.5, 0.5), 1)
+        super().__init__(name, (1, 15), (0.5, 0.5), 1)
         self.parent = None
 
     def resize(self, parent):
         self.parent = parent
         super().resize(parent)
         if self.is_top:
-            self.rect.bottom = parent.get_height() * self.slide
+            self.rect.bottom = parent.get_height() * normalise_evaluation(self.slide)
         else:
-            self.rect.top = parent.get_height() * self.slide
+            self.rect.top = parent.get_height() * normalise_evaluation(self.slide)
 
     def set_slide(self, slide):
         # store new slide
@@ -197,9 +197,9 @@ class EvaluationSlider(ScaleSurface):
         if self.parent is not None:
             # undo old slide and apply new slide
             if self.is_top:
-                self.rect.bottom = self.parent.get_height() * slide / self.slide
+                self.rect.bottom = self.parent.get_height() * normalise_evaluation(slide) / normalise_evaluation(self.slide)
             else:
-                self.rect.top = self.parent.get_height() * slide / self.slide
+                self.rect.top = self.parent.get_height() * normalise_evaluation(slide) / normalise_evaluation(self.slide)
 
 
 class EvaluationTextSlider(TextSurface):
@@ -212,6 +212,8 @@ class EvaluationTextSlider(TextSurface):
         self.rect.centery = self.parent.get_height() * self.slide
 
     def set_slide(self, slide):
-        self.slide = slide
-        if self.parent is not None:
-            self.rect.centery = self.parent.get_height() * slide / self.slide
+
+        if self.parent is not None and self.slide is not None:
+            self.rect.centery = self.parent.get_height() * normalise_evaluation(slide) / self.slide
+
+        self.slide = normalise_evaluation(slide)

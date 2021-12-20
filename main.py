@@ -35,10 +35,11 @@ def game(screen):
     chess_board = ScaleSurface("BLACK", (1, 1), (0.5, 0.5), 0.95)
 
     # -- evaluation bar --
-    eval_bar_border = ScaleSurface("BORDER", (1, 14), (0.045, 0.5), 0.95)
+    eval_bar_border = ScaleSurface("WINDOW", (1, 10), (0.045, 0.5), 0.95)
     eval_maximiser = EvaluationSlider("BLACK", True)
     eval_minimiser = EvaluationSlider("WHITE", False)
-    eval_label = EvaluationTextSlider("BORDER", (4, 3), (0.5, 0.5), 1, "0.0", 0.5, "WHITE", (1, 1))
+    eval_label_border = EvaluationTextSlider("BORDER", (5, 3), (0.5, 0.5), 1, "0.0", 0.5, "WHITE", (1, 1))
+    eval_label = TextSurface("TEXT_OUTPUT", (5, 3), (0.5, 0.5), 0.9, "0.0", 0.5, "TEXT", (1, 1))
 
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
@@ -75,7 +76,7 @@ def game(screen):
     # -- surface groups --
     scale_surf_group = [window, chess_board, chess_board_border, options_border, reset_board]
     hint_toggle_group = [hint_move, hint_engine, coordinates]
-    static_surf_group = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser, eval_label]
+    static_surf_group = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser, eval_label, eval_label_border]
     color_theme_button_group = [blue, purple, multi, green]
     all_surfaces_group = scale_surf_group + hint_toggle_group + static_surf_group + color_theme_button_group + tile_group
 
@@ -106,6 +107,9 @@ def game(screen):
             options_border.image.fill(color_spectrum[frame])
             screen.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 4])
             window.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 2])
+            eval_bar_border.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 2])
+            eval_label_border.image.fill(color_spectrum[frame])
+            eval_label_border.image.blit(eval_label.image, eval_label.rect)
         else:
             screen.fill(current_color_theme["SCREEN"])
 
@@ -134,14 +138,18 @@ def game(screen):
         if len(evaluation_transition) > 0:
             eval_maximiser.set_slide(evaluation_transition[-1])
             eval_minimiser.set_slide(evaluation_transition[-1])
-            eval_label.set_slide(evaluation_transition[-1])
+            eval_label_border.set_slide(evaluation_transition[-1])
 
             # redraw the new surfs
             eval_bar_border.resize(window.image)
             eval_maximiser.resize(eval_bar_border.image)
             eval_minimiser.resize(eval_bar_border.image)
-            eval_label.resize(eval_bar_border.image)
-            eval_label.draw_text(str(evaluation_transition[-1])[:4])
+            eval_label_border.resize(eval_bar_border.image)
+            if multi.clicked:
+                eval_bar_border.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 2])
+                eval_label_border.image.fill(color_spectrum[frame])
+            eval_label.draw_text(f"{float(str(evaluation_transition[-1])[:4]):.2f}")
+            eval_label_border.image.blit(eval_label.image, eval_label.rect)
 
             evaluation_transition.pop()
 
@@ -178,7 +186,9 @@ def game(screen):
                 eval_bar_border.resize(window.image)
                 eval_maximiser.resize(eval_bar_border.image)
                 eval_minimiser.resize(eval_bar_border.image)
-                eval_label.resize(eval_bar_border.image)
+                eval_label_border.resize(eval_bar_border.image)
+                eval_label.draw_text(str(evaluation)[:6])
+                eval_label.resize(eval_label_border.image)
 
                 # - options menu -
                 options_border.resize(window.image)
@@ -336,9 +346,7 @@ def game(screen):
                                                                               'h': screen.get_height()}))
                 if event.unicode == "t":
                     evaluation = random.randint(-10, 10)
-                    normalised_eval = normalise_evaluation(evaluation)
-                    print(normalised_eval)
-                    evaluation_transition += generate_evaluation_spectrum(eval_minimiser.slide, normalised_eval)
+                    evaluation_transition += generate_evaluation_spectrum(eval_minimiser.slide, evaluation)
 
         """ draw mouse pointer """
         if RAINBOW_MOUSE:
@@ -381,7 +389,8 @@ def game(screen):
             # evaluation bar
             eval_bar_border.image.blit(eval_maximiser.image, eval_maximiser.rect)
             eval_bar_border.image.blit(eval_minimiser.image, eval_minimiser.rect)
-            eval_bar_border.image.blit(eval_label.image, eval_label.rect)
+            eval_bar_border.image.blit(eval_label_border.image, eval_label_border.rect)
+            eval_label_border.image.blit(eval_label.image, eval_label.rect)
             window.image.blit(eval_bar_border.image, eval_bar_border.rect)
 
             # pieces
