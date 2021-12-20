@@ -1,11 +1,11 @@
 # -- imports --
 import pygame
 from engine_config import *
-from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton, EvaluationSlider
+from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton, EvaluationSlider, EvaluationTextSlider
 from tiles import Tile
 from pieces import *
 from validation import is_valid_fen
-from evaluation import generate_evaluation_spectrum
+from evaluation import generate_evaluation_spectrum, normalise_evaluation
 import colors
 import random
 from bouncing_ball import Bouncy
@@ -38,7 +38,7 @@ def game(screen):
     eval_bar_border = ScaleSurface("BORDER", (1, 14), (0.045, 0.5), 0.95)
     eval_maximiser = EvaluationSlider("BLACK", True)
     eval_minimiser = EvaluationSlider("WHITE", False)
-    eval_label = TextSurface("HOVERED", (1, 1), (0.5, 0.5), 1, "a", 0.8, "WHITE", (0.5, 0.5))
+    eval_label = EvaluationTextSlider("BORDER", (4, 3), (0.5, 0.5), 1, "0.0", 0.5, "WHITE", (1, 1))
 
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
@@ -134,13 +134,17 @@ def game(screen):
         if len(evaluation_transition) > 0:
             eval_maximiser.set_slide(evaluation_transition[-1])
             eval_minimiser.set_slide(evaluation_transition[-1])
-            evaluation_transition.pop()
+            eval_label.set_slide(evaluation_transition[-1])
 
             # redraw the new surfs
             eval_bar_border.resize(window.image)
             eval_maximiser.resize(eval_bar_border.image)
             eval_minimiser.resize(eval_bar_border.image)
             eval_label.resize(eval_bar_border.image)
+            eval_label.draw_text(str(evaluation_transition[-1])[:4])
+
+            evaluation_transition.pop()
+
 
         """ Event handler """
         for event in pygame.event.get():
@@ -331,9 +335,10 @@ def game(screen):
                     pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, {'w': screen.get_width(),
                                                                               'h': screen.get_height()}))
                 if event.unicode == "t":
-                    evaluation = random.random()
-                    evaluation_transition += generate_evaluation_spectrum(eval_minimiser.slide, evaluation)
-                    print(evaluation)
+                    evaluation = random.randint(-10, 10)
+                    normalised_eval = normalise_evaluation(evaluation)
+                    print(normalised_eval)
+                    evaluation_transition += generate_evaluation_spectrum(eval_minimiser.slide, normalised_eval)
 
         """ draw mouse pointer """
         if RAINBOW_MOUSE:

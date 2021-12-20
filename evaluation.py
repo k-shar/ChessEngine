@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 
 
 def normalise_evaluation(eval):
-    scale = 0.0001
-    return (e**(scale * eval) - 1)/(e**(scale * eval) + 1)
+    scale = 0.4
+    tanhx = ((e**(scale * eval) - 1)/(e**(scale * eval) + 1))
+    return (tanhx + 1) / 2
 
 
 def generate_evaluation_spectrum(start, end):
@@ -18,7 +19,7 @@ def generate_evaluation_spectrum(start, end):
 
 
 if __name__ == "__main__":
-    infinity = 99999
+    infinity = 15
 
     input_evaluations = []
     for i in range(100):
@@ -26,6 +27,7 @@ if __name__ == "__main__":
 
     evaluation_slider_center = []
     for input in input_evaluations:
+        print(input)
         evaluation_slider_center.append(normalise_evaluation(input))
 
     plt.plot(input_evaluations, evaluation_slider_center, "x")

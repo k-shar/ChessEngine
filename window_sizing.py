@@ -191,7 +191,6 @@ class EvaluationSlider(ScaleSurface):
         else:
             self.rect.top = parent.get_height() * self.slide
 
-
     def set_slide(self, slide):
         # store new slide
         self.slide = slide
@@ -202,3 +201,17 @@ class EvaluationSlider(ScaleSurface):
             else:
                 self.rect.top = self.parent.get_height() * slide / self.slide
 
+
+class EvaluationTextSlider(TextSurface):
+    def __init__(self, color, ratio, alignment, padding, text, text_size, text_color, text_loc):
+        super().__init__(color, ratio, alignment, padding, text, text_size, text_color, text_loc)
+
+    def resize(self, parent):
+        self.parent = parent
+        super().resize(parent)
+        self.rect.centery = self.parent.get_height() * self.slide
+
+    def set_slide(self, slide):
+        self.slide = slide
+        if self.parent is not None:
+            self.rect.centery = self.parent.get_height() * slide / self.slide
