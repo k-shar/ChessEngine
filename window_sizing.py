@@ -174,3 +174,31 @@ class HintsToggle(Button):
         else:
             self.checkbox.active_text = "x"
         self.checkbox.draw_text(self.checkbox.active_text)
+
+
+class EvaluationSlider(ScaleSurface):
+    def __init__(self, name, is_top):
+        self.slide = 0.8
+        self.is_top = is_top
+        super().__init__(name, (1, 16), (0.5, 0.5), 1)
+        self.parent = None
+
+    def resize(self, parent):
+        self.parent = parent
+        super().resize(parent)
+        if self.is_top:
+            self.rect.bottom = parent.get_height() * self.slide
+        else:
+            self.rect.top = parent.get_height() * self.slide
+
+
+    def set_slide(self, slide):
+        # store new slide
+        self.slide = slide
+        if self.parent is not None:
+            # undo old slide and apply new slide
+            if self.is_top:
+                self.rect.bottom = self.parent.get_height() * slide / self.slide
+            else:
+                self.rect.top = self.parent.get_height() * slide / self.slide
+

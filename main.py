@@ -1,10 +1,11 @@
 # -- imports --
 import pygame
 from engine_config import *
-from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton
+from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton, EvaluationSlider
 from tiles import Tile
 from pieces import *
 from validation import is_valid_fen
+from evaluation import generate_evaluation_spectrum
 import colors
 import random
 from bouncing_ball import Bouncy
@@ -20,6 +21,8 @@ def game(screen):
     show_coordinates = False
     balls = []
     fade_indexer = 0
+    evaluation = 0.5
+    evaluation_transition = [evaluation]
 
     STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
     is_valid_fen(STARTING_FEN)
@@ -33,8 +36,9 @@ def game(screen):
 
     # -- evaluation bar --
     eval_bar_border = ScaleSurface("BORDER", (1, 14), (0.045, 0.5), 0.95)
-    eval_maximiser = ScaleSurface("MAXIMISER", (1, 15), (0.5, 0.25), 0.8)
-    eval_minimiser = ScaleSurface("MINIMISER", (1, 15), (0.5, 0.75), 0.8)
+    eval_maximiser = EvaluationSlider("BLACK", True)
+    eval_minimiser = EvaluationSlider("WHITE", False)
+    eval_label = TextSurface("HOVERED", (1, 1), (0.5, 0.5), 1, "a", 0.8, "WHITE", (0.5, 0.5))
 
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
@@ -71,7 +75,7 @@ def game(screen):
     # -- surface groups --
     scale_surf_group = [window, chess_board, chess_board_border, options_border, reset_board]
     hint_toggle_group = [hint_move, hint_engine, coordinates]
-    static_surf_group = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser]
+    static_surf_group = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser, eval_label]
     color_theme_button_group = [blue, purple, multi, green]
     all_surfaces_group = scale_surf_group + hint_toggle_group + static_surf_group + color_theme_button_group + tile_group
 
@@ -126,6 +130,18 @@ def game(screen):
                 pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE,
                                                      {"w": screen.get_width(), "h": screen.get_height()}))
 
+        # -- update evaluation bar --
+        if len(evaluation_transition) > 0:
+            eval_maximiser.set_slide(evaluation_transition[-1])
+            eval_minimiser.set_slide(evaluation_transition[-1])
+            evaluation_transition.pop()
+
+            # redraw the new surfs
+            eval_bar_border.resize(window.image)
+            eval_maximiser.resize(eval_bar_border.image)
+            eval_minimiser.resize(eval_bar_border.image)
+            eval_label.resize(eval_bar_border.image)
+
         """ Event handler """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -158,6 +174,7 @@ def game(screen):
                 eval_bar_border.resize(window.image)
                 eval_maximiser.resize(eval_bar_border.image)
                 eval_minimiser.resize(eval_bar_border.image)
+                eval_label.resize(eval_bar_border.image)
 
                 # - options menu -
                 options_border.resize(window.image)
@@ -313,6 +330,10 @@ def game(screen):
                 if event.unicode == "r":
                     pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, {'w': screen.get_width(),
                                                                               'h': screen.get_height()}))
+                if event.unicode == "t":
+                    evaluation = random.random()
+                    evaluation_transition += generate_evaluation_spectrum(eval_minimiser.slide, evaluation)
+                    print(evaluation)
 
         """ draw mouse pointer """
         if RAINBOW_MOUSE:
@@ -348,13 +369,14 @@ def game(screen):
             options_border.image.blit(reset_board.image, reset_board.rect)
 
             # text output
-            # text_output.draw_text(str(len(balls)))
+            text_output.draw_text(str(evaluation)[:6])
             options_border.image.blit(text_output.image, text_output.rect)
             window.image.blit(options_border.image, options_border.rect)
 
             # evaluation bar
             eval_bar_border.image.blit(eval_maximiser.image, eval_maximiser.rect)
             eval_bar_border.image.blit(eval_minimiser.image, eval_minimiser.rect)
+            eval_bar_border.image.blit(eval_label.image, eval_label.rect)
             window.image.blit(eval_bar_border.image, eval_bar_border.rect)
 
             # pieces
