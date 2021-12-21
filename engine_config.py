@@ -49,7 +49,7 @@ purple_theme = {
 
 green_theme = {
     "SCREEN": (13, 26, 8),
-    "WINDOW": (58, 120, 34),
+    "WINDOW": (0, 40, 0),
 
     "WHITE": (232, 234, 229),
     "BLACK": (51, 105, 75),

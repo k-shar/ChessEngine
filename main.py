@@ -26,7 +26,7 @@ def game(screen):
     evaluation_transition = [evaluation]
 
     # STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
-    STARTING_FEN = "111111q1/111p1111/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
+    STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
 
     is_valid_fen(STARTING_FEN)
     active_FEN = STARTING_FEN
@@ -239,6 +239,8 @@ def game(screen):
 
                         # if mouse is also clicked, select piece
                         if event.type == pygame.MOUSEBUTTONUP and active_piece is None:
+                            for other_piece in piece_group:
+                                other_piece.selected = False
                             piece.selected = True
 
                     else:
@@ -368,6 +370,10 @@ def game(screen):
             if event.type == pygame.KEYDOWN:
                 if event.unicode == "v":
                     show_ui = not show_ui
+                if event.unicode == "m":
+                    multi.click(not multi.clicked)
+                    pygame.event.post(pygame.event.Event(pygame.VIDEORESIZE, {'w': screen.get_width(),
+                                                                              'h': screen.get_height()}))
                 if event.unicode == "b":
                     # -- create bouncer --
                     for i in range(500):
