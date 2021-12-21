@@ -25,7 +25,9 @@ def game(screen):
     evaluation = 0.5
     evaluation_transition = [evaluation]
 
-    STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
+    # STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
+    STARTING_FEN = "111111q1/111p1111/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
+
     is_valid_fen(STARTING_FEN)
     active_FEN = STARTING_FEN
 
@@ -274,7 +276,7 @@ def game(screen):
                                     active_piece.tile_index = tile.tile_index
                                     # log the piece move
                                     player_move = active_piece.name, tile.coordinate, tile.pos
-                                    # active_FEN = make_move_on_FEN(active_FEN, player_move)
+                                    active_FEN = make_move_on_FEN(active_FEN, player_move, old_tile.pos)
                                     # deselect piece
                                     active_piece.selected = False
                                     active_piece = None

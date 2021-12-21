@@ -42,13 +42,30 @@ def is_valid_fen(FEN):
     return True
 
 
-def make_move_on_FEN(fen, move):
+def make_move_on_FEN(fen, move, previous_square):
+    split_fen = fen.split(" ")
     rows = fen.split(" ")[0].split("/")
 
-    if len(rows[move[2][1] - 1]) == 8:
-        print(rows[move[2][1] - 1][move[2][0] - 1])
+    # set piece on new square
+    column_of_new_row = list(rows[move[2][1] - 1])
+    column_of_new_row[move[2][0] - 1] = move[0]  # set piece
+    rows[move[2][1] - 1] = "".join(column_of_new_row)  # set the move to the rows
 
-    return fen
+    # set old square as empty
+    column_of_old_row = list(rows[previous_square[1] - 1])
+    column_of_old_row[previous_square[0] - 1] = "1"
+    rows[previous_square[1] - 1] = "".join(column_of_old_row)
+
+    new_fen = ""
+    for row in rows:
+        new_fen += row + "/"
+    new_fen = new_fen[:-1]
+    for component in split_fen[1:]:
+        new_fen += " " + component
+
+    is_valid_fen(new_fen)
+    print(new_fen)
+    return new_fen
 
 
 if __name__ == "__main__":
