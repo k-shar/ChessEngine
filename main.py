@@ -162,7 +162,6 @@ def game(screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
-
             """ resize event"""
             if event.type == pygame.VIDEORESIZE:
 
@@ -237,7 +236,7 @@ def game(screen):
                         piece.hover(True)
 
                         # if mouse is also clicked, select piece
-                        if event.type == pygame.MOUSEBUTTONUP:
+                        if event.type == pygame.MOUSEBUTTONUP and active_piece is None:
                             piece.selected = True
 
                     else:
@@ -256,13 +255,33 @@ def game(screen):
                             if active_piece is not None:
                                 old_tile = tile_group[active_piece.tile_index]
                                 old_tile.image.fill(old_tile.color)
-                                active_piece.tile_index = tile.tile_index
-                                # log the piece move
-                                player_move = active_piece.name, tile.coordinate, tile.pos
-                                active_FEN = make_move_on_FEN(active_FEN, player_move)
-                                # deselect piece
-                                active_piece.selected = False
-                                active_piece = None
+
+                                # if tile is occupied
+                                occupying_piece = None
+                                friendly_piece = False
+                                for old_piece in piece_group:
+                                    if old_piece.tile_index == tile.tile_index:
+                                        occupying_piece = old_piece
+                                        if occupying_piece.color == active_piece.color:
+                                            friendly_piece = True
+
+                                if not friendly_piece:
+                                    if occupying_piece is not None:
+                                        # if enemy piece
+                                        if occupying_piece.color != active_piece.color:
+                                            piece_group.remove(occupying_piece)
+                                    # place the piece
+                                    active_piece.tile_index = tile.tile_index
+                                    # log the piece move
+                                    player_move = active_piece.name, tile.coordinate, tile.pos
+                                    # active_FEN = make_move_on_FEN(active_FEN, player_move)
+                                    # deselect piece
+                                    active_piece.selected = False
+                                    active_piece = None
+                                # trying to place on a friendly piece
+                                else:
+                                    active_piece.selected = False
+                                    active_piece = None
                     else:
                         # not hovered
                         tile.image.fill(tile.color)

@@ -44,10 +44,10 @@ def is_valid_fen(FEN):
 
 def make_move_on_FEN(fen, move):
     rows = fen.split(" ")[0].split("/")
-    for row in rows:
-        pass
 
-    print(rows[move[2][1] - 1][move[2][0] - 1])
+    if len(rows[move[2][1] - 1]) == 8:
+        print(rows[move[2][1] - 1][move[2][0] - 1])
+
     return fen
 
 
