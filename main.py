@@ -187,7 +187,6 @@ def game(screen):
                 eval_maximiser.resize(eval_bar_border.image)
                 eval_minimiser.resize(eval_bar_border.image)
                 eval_label_border.resize(eval_bar_border.image)
-                eval_label.draw_text(str(evaluation)[:6])
                 eval_label.resize(eval_label_border.image)
 
                 # - options menu -
@@ -346,7 +345,11 @@ def game(screen):
                                                                               'h': screen.get_height()}))
                 if event.unicode == "t":
                     evaluation = random.randint(-10, 10)
-                    evaluation_transition += generate_evaluation_spectrum(eval_minimiser.slide, evaluation)
+                    if len(evaluation_transition) > 0:
+                        evaluation_transition = generate_evaluation_spectrum(evaluation_transition[-1], evaluation)
+                    else:
+                        evaluation_transition = generate_evaluation_spectrum(eval_minimiser.slide, evaluation)
+
 
         """ draw mouse pointer """
         if RAINBOW_MOUSE:
@@ -427,7 +430,7 @@ def game(screen):
                                              pygame.mouse.get_pos()[1] - active_piece.rect.height // 2])
 
         pygame.display.update()
-        clock.tick(60)
+        clock.tick(20)
 
 
 if __name__ == "__main__":
