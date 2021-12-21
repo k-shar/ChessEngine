@@ -3,6 +3,7 @@ from pygame import freetype
 import engine_config
 from evaluation import normalise_evaluation
 
+
 class ScaleSurface(pygame.sprite.Sprite):
     def __init__(self, name, ratio, alignment, padding):
         super().__init__()

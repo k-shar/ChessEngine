@@ -52,8 +52,10 @@ class Pawn(Piece):
     def __init__(self, color, tile_index):
         self.color = color
         if self.color == "black":
+            self.name = "p"
             super().__init__("img/black_pawn.svg", tile_index)
         if self.color == "white":
+            self.name = "P"
             super().__init__("img/white_pawn.svg", tile_index)
 
 
@@ -61,8 +63,10 @@ class Rook(Piece):
     def __init__(self, color, tile_index):
         self.color = color
         if self.color == "black":
+            self.name = "r"
             super().__init__("img/black_rook.svg", tile_index)
         if self.color == "white":
+            self.name = "R"
             super().__init__("img/white_rook.svg", tile_index)
 
 
@@ -70,8 +74,10 @@ class Knight(Piece):
     def __init__(self, color, tile_index):
         self.color = color
         if self.color == "black":
+            self.name = "n"
             super().__init__("img/black_knight.svg", tile_index)
         if self.color == "white":
+            self.name = "N"
             super().__init__("img/white_knight.svg", tile_index)
 
 
@@ -79,8 +85,10 @@ class Bishop(Piece):
     def __init__(self, color, tile_index):
         self.color = color
         if self.color == "black":
+            self.name = "b"
             super().__init__("img/black_bishop.svg", tile_index)
         if self.color == "white":
+            self.name = "B"
             super().__init__("img/white_bishop.svg", tile_index)
 
 
@@ -88,8 +96,10 @@ class King(Piece):
     def __init__(self, color, tile_index):
         self.color = color
         if self.color == "black":
+            self.name = "k"
             super().__init__("img/black_king.svg", tile_index)
         if self.color == "white":
+            self.name = "K"
             super().__init__("img/white_king.svg", tile_index)
 
 
@@ -97,6 +107,8 @@ class Queen(Piece):
     def __init__(self, color, tile_index):
         self.color = color
         if self.color == "black":
+            self.name = "q"
             super().__init__("img/black_queen.svg", tile_index)
         if self.color == "white":
+            self.name = "Q"
             super().__init__("img/white_queen.svg", tile_index)

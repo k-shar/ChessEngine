@@ -4,7 +4,7 @@ from engine_config import *
 from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton, EvaluationSlider, EvaluationTextSlider
 from tiles import Tile
 from pieces import *
-from validation import is_valid_fen
+from fen_manipulation import is_valid_fen, make_move_on_FEN
 from evaluation import generate_evaluation_spectrum, normalise_evaluation
 import colors
 import random
@@ -19,6 +19,7 @@ def game(screen):
     active_piece = None
     show_ui = True
     show_coordinates = False
+    player_move = None
     balls = []
     fade_indexer = 0
     evaluation = 0.5
@@ -26,9 +27,12 @@ def game(screen):
 
     STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
     is_valid_fen(STARTING_FEN)
+    active_FEN = STARTING_FEN
 
     """ Initialise Surfaces """
     window = ScaleSurface("WINDOW", (16, 9), (0.5, 0.5), 1)
+
+    fps_counter = TextSurface("BORDER", (5, 3), (0.05, 0.05), 0.08, "0.0", 0.6, "TEXT", (1, 1))
 
     # -- chess board and border --
     chess_board_border = ScaleSurface("BORDER", (1, 1), (0.35, 0.5), 0.9)
@@ -164,6 +168,7 @@ def game(screen):
 
                 screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 window.resize(screen)
+                fps_counter.resize(window.image)
 
                 # mouse pointer
                 mouse_pointer.fill((0, 0, 0))
@@ -252,9 +257,16 @@ def game(screen):
                                 old_tile = tile_group[active_piece.tile_index]
                                 old_tile.image.fill(old_tile.color)
                                 active_piece.tile_index = tile.tile_index
+                                # log the piece move
+                                player_move = active_piece.name, tile.coordinate, tile.pos
+                                active_FEN = make_move_on_FEN(active_FEN, player_move)
                                 # deselect piece
                                 active_piece.selected = False
                                 active_piece = None
+                    else:
+                        # not hovered
+                        tile.image.fill(tile.color)
+                        tile.draw_text(tile.active_text)
 
                 """ hint toggle hover """
                 for hint_button in hint_toggle_group:
@@ -385,7 +397,7 @@ def game(screen):
             options_border.image.blit(reset_board.image, reset_board.rect)
 
             # text output
-            text_output.draw_text(str(evaluation)[:6])
+            text_output.draw_text(str(player_move))
             options_border.image.blit(text_output.image, text_output.rect)
             window.image.blit(options_border.image, options_border.rect)
 
@@ -404,6 +416,7 @@ def game(screen):
                     tile.image.fill(tile.color_set["HOVERED"])
                 else:
                     tile.image.fill(tile.color)
+                    tile.draw_text(tile.active_text)
                     tile.image.blit(piece.image, piece.rect)
 
             # tiles
@@ -422,6 +435,9 @@ def game(screen):
             window.image.blit(mouse_pointer, [pygame.mouse.get_pos()[0] - window_offset[0],
                                               pygame.mouse.get_pos()[1] - window_offset[1]])
 
+        fps_counter.draw_text(f"{str(clock.get_fps())[:4]}")
+        window.image.blit(fps_counter.image, fps_counter.rect)
+
         # window
         screen.blit(window.image, window.rect)
 
@@ -429,8 +445,8 @@ def game(screen):
             screen.blit(active_piece.image, [pygame.mouse.get_pos()[0] - active_piece.rect.width // 2,
                                              pygame.mouse.get_pos()[1] - active_piece.rect.height // 2])
 
+        clock.tick()
         pygame.display.update()
-        clock.tick(20)
 
 
 if __name__ == "__main__":

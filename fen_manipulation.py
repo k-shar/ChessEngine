@@ -42,6 +42,14 @@ def is_valid_fen(FEN):
     return True
 
 
+def make_move_on_FEN(fen, move):
+    rows = fen.split(" ")[0].split("/")
+    for row in rows:
+        pass
+    print(rows[move[2][1] - 1][move[2][0] - 1])
+    return fen
+
+
 if __name__ == "__main__":
     # unit test cases
     print(is_valid_fen("rnbqkbnr/ppppppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"))
