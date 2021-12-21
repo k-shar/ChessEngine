@@ -45,7 +45,7 @@ def game(screen):
     eval_maximiser = EvaluationSlider("BLACK", True)
     eval_minimiser = EvaluationSlider("WHITE", False)
     eval_label_border = EvaluationTextSlider("BORDER", (5, 3), (0.5, 0.5), 1, "0.0", 0.5, "WHITE", (1, 1))
-    eval_label = TextSurface("TEXT_OUTPUT", (5, 3), (0.5, 0.5), 0.9, "0.0", 0.5, "TEXT", (1, 1))
+    eval_label = TextSurface("TEXT_OUTPUT", (5, 3), (0.5, 0.5), 0.9, "0.0", 0.5, "BORDER", (1, 1))
 
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
@@ -159,7 +159,6 @@ def game(screen):
 
             evaluation_transition.pop()
 
-
         """ Event handler """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -253,10 +252,12 @@ def game(screen):
                     if tile.image.get_rect().collidepoint([pygame.mouse.get_pos()[0] - chess_board_offset[0] - tile_offset[0],
                                                            pygame.mouse.get_pos()[1] - chess_board_offset[1] - tile_offset[1]]):
                         # if mouse clicked and hovered
-                        if event.type == pygame.MOUSEBUTTONUP:
+                        if event.type == pygame.MOUSEBUTTONUP and active_piece is not None:
+
+                            legal_tile_indecies = active_piece.generate_legal_moves()
 
                             # if a piece is selected, place it on this tile
-                            if active_piece is not None:
+                            if tile.tile_index in legal_tile_indecies:
                                 old_tile = tile_group[active_piece.tile_index]
                                 old_tile.image.fill(old_tile.color)
 
@@ -282,7 +283,8 @@ def game(screen):
                                     # deselect piece
                                     active_piece.selected = False
                                     active_piece = None
-                                # trying to place on a friendly piece
+
+                                # trying to place on a friendly piece or place on an illegal square
                                 else:
                                     active_piece.selected = False
                                     active_piece = None
@@ -389,6 +391,10 @@ def game(screen):
                     else:
                         evaluation_transition = generate_evaluation_spectrum(eval_minimiser.slide, evaluation)
 
+        """ show legal destinations for selected piece"""
+        if active_piece is not None:
+            for tile in active_piece.generate_legal_moves():
+                tile_group[tile].image.fill(current_color_theme["LEGAL_MOVE"])
 
         """ draw mouse pointer """
         if RAINBOW_MOUSE:

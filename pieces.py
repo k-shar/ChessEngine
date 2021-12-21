@@ -27,6 +27,7 @@ def instasiate_pieces(FEN):
             tile_index += 1
     return piece_group
 
+
 class Piece():
     def __init__(self, file, tile_index, color):
         self.file = pygame.image.load(file)
@@ -48,6 +49,8 @@ class Piece():
         else:
             self.resize(self.parent, 1)
 
+    def generate_legal_moves(self):
+        return [self.tile_index, 24, 45, 34]
 
 class Pawn(Piece):
     def __init__(self, color, tile_index):
@@ -59,6 +62,11 @@ class Pawn(Piece):
             self.name = "P"
             super().__init__("img/white_pawn.svg", tile_index, color)
 
+    def generate_legal_moves(self):
+        if self.color == "white":
+            return [self.tile_index, self.tile_index - 8, self.tile_index - 16]
+        else:
+            return [self.tile_index, self.tile_index + 8, self.tile_index + 16]
 
 class Rook(Piece):
     def __init__(self, color, tile_index):

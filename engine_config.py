@@ -9,6 +9,8 @@ blue_theme = {
     "SCREEN": (6, 65, 76),
     "WINDOW": (23, 89, 101),
 
+    "LEGAL_MOVE": (0, 0, 255),
+
     "WHITE": (179, 179, 179),
     "BLACK": (88, 88, 88),
 
@@ -30,6 +32,8 @@ purple_theme = {
     "SCREEN": (37, 6, 76),
     "WINDOW": (85, 50, 133),
 
+    "LEGAL_MOVE": (255, 0, 255),
+
     "WHITE": (235, 235, 235),
     "BLACK": (139, 116, 180),
 
@@ -50,6 +54,8 @@ purple_theme = {
 green_theme = {
     "SCREEN": (13, 26, 8),
     "WINDOW": (0, 40, 0),
+
+    "LEGAL_MOVE": (0, 255, 0),
 
     "WHITE": (232, 234, 229),
     "BLACK": (51, 105, 75),
