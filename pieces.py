@@ -55,6 +55,8 @@ class Piece():
 class Pawn(Piece):
     def __init__(self, color, tile_index):
         self.color = color
+        self.already_moved = False
+
         if self.color == "black":
             self.name = "p"
             super().__init__("img/black_pawn.svg", tile_index, color)
@@ -64,9 +66,15 @@ class Pawn(Piece):
 
     def generate_legal_moves(self):
         if self.color == "white":
-            return [self.tile_index, self.tile_index - 8, self.tile_index - 16]
+            if self.already_moved:
+                return [self.tile_index, self.tile_index - 8]
+            else:
+                return [self.tile_index, self.tile_index - 8, self.tile_index - 16]
         else:
-            return [self.tile_index, self.tile_index + 8, self.tile_index + 16]
+            if self.already_moved:
+                return [self.tile_index, self.tile_index + 8]
+            else:
+                return [self.tile_index, self.tile_index + 8, self.tile_index + 16]
 
 class Rook(Piece):
     def __init__(self, color, tile_index):

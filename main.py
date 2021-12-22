@@ -280,14 +280,14 @@ def game(screen):
                                     # log the piece move
                                     player_move = active_piece.name, tile.coordinate, tile.pos
                                     active_FEN = make_move_on_FEN(active_FEN, player_move, old_tile.pos)
-                                    # deselect piece
-                                    active_piece.selected = False
-                                    active_piece = None
 
-                                # trying to place on a friendly piece or place on an illegal square
-                                else:
-                                    active_piece.selected = False
-                                    active_piece = None
+                                    # if pawn
+                                    if type(active_piece) == Pawn:
+                                        active_piece.already_moved = True
+
+                            # deselect piece
+                            active_piece.selected = False
+                            active_piece = None
                     else:
                         # not hovered
                         tile.image.fill(tile.color)
