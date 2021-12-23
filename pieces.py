@@ -49,13 +49,80 @@ class Piece():
         else:
             self.resize(self.parent, 1)
 
-    def generate_legal_moves(self):
+    def generate_legal_moves(self, tile_group):
+        print("dont be here")
         return [self.tile_index, 24, 45, 34]
+
+def generate_orthogonal_moves(tile_index, tile_group):
+    legal_moves = [tile_index]
+
+    # left row
+    index = tile_index
+    while index % 8 != 0:
+        legal_moves.append(index)
+        index -= 1
+    legal_moves.append(index)
+
+    # right row
+    index = tile_index + 1
+    while index % 8 != 0:
+        legal_moves.append(index)
+        index += 1
+
+    # up column
+    index = tile_index
+    while index > 7:
+        legal_moves.append(index)
+        index -= 8
+    legal_moves.append(index)
+
+    # down column
+    index = tile_index
+    while index < 56:
+        legal_moves.append(index)
+        index += 8
+    legal_moves.append(index)
+
+    return legal_moves
+
+
+def generate_diagonal_moves(tile_index, tile_group):
+    legal_moves = [tile_index]
+
+    # top left diagonal
+    index = tile_index
+    while index % 8 != 0 and index > 7:
+        legal_moves.append(index)
+        index -= 9
+    legal_moves.append(index)
+
+    # top right diagonal
+    index = tile_index
+    while (index+1) % 8 != 0 and index > 7:
+        index -= 7
+        legal_moves.append(index)
+
+    # bottom left diagonal
+    index = tile_index
+    while index % 8 != 0 and index < 56:
+        legal_moves.append(index)
+        index += 7
+    legal_moves.append(index)
+
+    # bottom right diagonal
+    index = tile_index
+    while (index+1) % 8 != 0 and index < 56:
+        legal_moves.append(index)
+        index += 9
+    legal_moves.append(index)
+
+    return legal_moves
+
+
 
 class Pawn(Piece):
     def __init__(self, color, tile_index):
         self.color = color
-        self.already_moved = False
 
         if self.color == "black":
             self.name = "p"
@@ -64,17 +131,23 @@ class Pawn(Piece):
             self.name = "P"
             super().__init__("img/white_pawn.svg", tile_index, color)
 
-    def generate_legal_moves(self):
+    def generate_legal_moves(self, tile_group):
         if self.color == "white":
-            if self.already_moved:
-                return [self.tile_index, self.tile_index - 8]
-            else:
+            if 47 < self.tile_index < 56:  # home rank can move double
                 return [self.tile_index, self.tile_index - 8, self.tile_index - 16]
-        else:
-            if self.already_moved:
-                return [self.tile_index, self.tile_index + 8]
             else:
+                if 0 <= self.tile_index <= 7:
+                    print("time to queen")  # TODO: pawn promotion
+                    return [self.tile_index]
+                return [self.tile_index, self.tile_index - 8]
+        else:
+            if 7 < self.tile_index < 16:  # home rank can move double
                 return [self.tile_index, self.tile_index + 8, self.tile_index + 16]
+            else:
+                if 56 <= self.tile_index <= 65:
+                    print("time to queen")  # TODO: pawn promotion
+                    return [self.tile_index]
+                return [self.tile_index, self.tile_index + 8]
 
 class Rook(Piece):
     def __init__(self, color, tile_index):
@@ -85,6 +158,9 @@ class Rook(Piece):
         if self.color == "white":
             self.name = "R"
             super().__init__("img/white_rook.svg", tile_index, color)
+
+    def generate_legal_moves(self, tile_group):
+        return generate_orthogonal_moves(self.tile_index, tile_group)
 
 
 class Knight(Piece):
@@ -97,6 +173,35 @@ class Knight(Piece):
             self.name = "N"
             super().__init__("img/white_knight.svg", tile_index, color)
 
+    def generate_legal_moves(self, tile_list):
+        legal_moves = [self.tile_index]
+        coordinate = tile_list[self.tile_index].pos
+        # top left
+        if coordinate[0] > 1 and coordinate[1] > 2:
+            legal_moves.append(self.tile_index - 17)
+        # top right
+        if coordinate[0] < 8 and coordinate[1] > 2:
+            legal_moves.append(self.tile_index - 15)
+        # left top
+        if coordinate[0] > 2 and coordinate[1] > 1:
+            legal_moves.append(self.tile_index - 10)
+        # left bottom
+        if coordinate[0] > 2 and coordinate[1] < 8:
+            legal_moves.append(self.tile_index + 6)
+        # bottom left
+        if coordinate[0] > 1 and coordinate[1] < 7:
+            legal_moves.append(self.tile_index + 15)
+        # bottom right
+        if coordinate[0] < 8 and coordinate[1] < 7:
+            legal_moves.append(self.tile_index + 17)
+        # left bottom
+        if coordinate[0] < 7 and coordinate[1] < 7:
+            legal_moves.append(self.tile_index + 10)
+        # left top
+        if coordinate[0] < 7 and coordinate[1] > 1:
+            legal_moves.append(self.tile_index - 6)
+        return legal_moves
+
 
 class Bishop(Piece):
     def __init__(self, color, tile_index):
@@ -107,6 +212,9 @@ class Bishop(Piece):
         if self.color == "white":
             self.name = "B"
             super().__init__("img/white_bishop.svg", tile_index, color)
+
+    def generate_legal_moves(self, tile_group):
+        return generate_diagonal_moves(self.tile_index, tile_group)
 
 
 class King(Piece):
@@ -129,3 +237,6 @@ class Queen(Piece):
         if self.color == "white":
             self.name = "Q"
             super().__init__("img/white_queen.svg", tile_index, color)
+
+    def generate_legal_moves(self, tile_group):
+        return generate_diagonal_moves(self.tile_index, tile_group) + generate_orthogonal_moves(self.tile_index, tile_group)
