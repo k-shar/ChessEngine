@@ -229,7 +229,34 @@ class King(Piece):
 
     def generate_legal_moves(self, tile_group):
         index = self.tile_index
-        return [index, index+1, index+7, index+8, index+9, index-1, index-7, index-8, index-9]
+        coordinate = tile_group[self.tile_index].pos
+        legal_moves = [index]
+
+        # variables for diagonals
+        # up-left, up-right, down-left, down-right
+        ul, ur, dl, dr = True, True, True, True
+
+        # orthogonal directions, and decide if diagonals are legal
+        if coordinate[0] != 8:
+            legal_moves.append(index + 1)  # left
+        else: ur, dr = False, False
+        if coordinate[0] != 1:
+            legal_moves.append(index- 1)  # right
+        else: ul, dl = False, False
+        if coordinate[1] != 1:
+            legal_moves.append(index - 8)  # up
+        else: ul, ur = False, False
+        if coordinate[1] != 8:
+            legal_moves.append(index + 8)  # down
+        else: dl, dr = False, False
+
+        # diagonals
+        if ul: legal_moves.append(index - 9)
+        if ur: legal_moves.append(index - 7)
+        if dl: legal_moves.append(index + 7)
+        if dr: legal_moves.append(index + 9)
+
+        return legal_moves
 
 class Queen(Piece):
     def __init__(self, color, tile_index):
