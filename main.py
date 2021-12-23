@@ -28,7 +28,7 @@ def game(screen):
 
     # STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/1111R111/11111111/11111r11/PPPPPPPP/RNBQKBNR w KQkq"
-    STARTING_FEN = "1111p111/111111P1/1B11Qqn1/1N11R111/111b111N/n1111r11/b111B111/11Q111q1 w KQkq"
+    STARTING_FEN = "1111p111/111111P1/1B11Qqn1/1N11R11k/1K1b111N/n1111r11/b111B111/11Q111q1 w KQkq"
 
 
     is_valid_fen(STARTING_FEN)
@@ -445,7 +445,12 @@ def game(screen):
                 legal_tile_indices = active_piece.generate_legal_moves(tile_group)
                 for tile_index in legal_tile_indices:
                     tile_group[tile_index].is_legal_move = True
-                    tile_group[tile_index].image.fill(current_color_theme["LEGAL_MOVE"])
+                    # draw dot on legal move square
+                    pygame.draw.ellipse(tile_group[tile_index].image, current_color_theme["LEGAL_MOVE"],
+                                        [tile_group[tile_index].image.get_height() // 4,
+                                         tile_group[tile_index].image.get_width() // 4,
+                                         tile_group[tile_index].image.get_height() // 2,
+                                         tile_group[tile_index].image.get_width() // 2])
 
             # pieces
             for piece in piece_group:
@@ -453,7 +458,8 @@ def game(screen):
                 tile.image.blit(piece.image, piece.rect)
                 if tile.is_legal_move:
                     tile.is_legal_move = False
-                    tile.image.fill(current_color_theme["LEGAL_MOVE"])
+                    pygame.draw.ellipse(tile.image, current_color_theme["CAPTURE_SQUARE"],
+                                        tile.image.get_rect())
                     tile.image.blit(piece.image, piece.rect)
                 if piece.selected:
                     active_piece = piece

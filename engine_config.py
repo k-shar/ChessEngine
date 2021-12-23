@@ -10,6 +10,7 @@ blue_theme = {
     "WINDOW": (23, 89, 101),
 
     "LEGAL_MOVE": (0, 0, 255),
+    "CAPTURE_SQUARE": (255, 0, 0),
 
     "WHITE": (179, 179, 179),
     "BLACK": (88, 88, 88),
@@ -33,6 +34,7 @@ purple_theme = {
     "WINDOW": (85, 50, 133),
 
     "LEGAL_MOVE": (255, 0, 255),
+    "CAPTURE_SQUARE": (255, 0, 0),
 
     "WHITE": (235, 235, 235),
     "BLACK": (139, 116, 180),
@@ -56,6 +58,7 @@ green_theme = {
     "WINDOW": (0, 40, 0),
 
     "LEGAL_MOVE": (0, 255, 0),
+    "CAPTURE_SQUARE": (255, 0, 0),
 
     "WHITE": (232, 234, 229),
     "BLACK": (51, 105, 75),

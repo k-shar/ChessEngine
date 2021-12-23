@@ -194,10 +194,10 @@ class Knight(Piece):
         # bottom right
         if coordinate[0] < 8 and coordinate[1] < 7:
             legal_moves.append(self.tile_index + 17)
-        # left bottom
-        if coordinate[0] < 7 and coordinate[1] < 7:
+        # right bottom
+        if coordinate[0] < 7 and coordinate[1] < 8:
             legal_moves.append(self.tile_index + 10)
-        # left top
+        # right top
         if coordinate[0] < 7 and coordinate[1] > 1:
             legal_moves.append(self.tile_index - 6)
         return legal_moves
@@ -227,6 +227,9 @@ class King(Piece):
             self.name = "K"
             super().__init__("img/white_king.svg", tile_index, color)
 
+    def generate_legal_moves(self, tile_group):
+        index = self.tile_index
+        return [index, index+1, index+7, index+8, index+9, index-1, index-7, index-8, index-9]
 
 class Queen(Piece):
     def __init__(self, color, tile_index):
