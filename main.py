@@ -29,7 +29,8 @@ def game(screen):
     # STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/1111R111/11111111/11111r11/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "1111p111/111111P1/1B11Qqn1/1N11R11k/1K1b111N/n1111r11/b111B111/11Q111q1 w KQkq"
-
+    STARTING_FEN = "1B11111p/ppppp11b/1111B111/111r111b/11111111/11111111/1PPPPR11/11111P11 w KQkq"
+    STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
 
     is_valid_fen(STARTING_FEN)
     active_FEN = STARTING_FEN
@@ -255,7 +256,7 @@ def game(screen):
                     """ tiles hover """
                     # if mouse clicked and hovered
                     if event.type == pygame.MOUSEBUTTONUP and active_piece is not None:
-                        legal_tile_indices = active_piece.generate_legal_moves(tile_group)
+                        legal_tile_indices = active_piece.generate_legal_moves(tile_group, piece_group)
 
                         # if a piece is selected, place it on this tile
                         for tile_index in legal_tile_indices:
@@ -442,8 +443,9 @@ def game(screen):
             window.image.blit(eval_bar_border.image, eval_bar_border.rect)
 
             if active_piece is not None:
-                legal_tile_indices = active_piece.generate_legal_moves(tile_group)
+                legal_tile_indices = active_piece.generate_legal_moves(tile_group, piece_group)
                 for tile_index in legal_tile_indices:
+
                     tile_group[tile_index].is_legal_move = True
                     # draw dot on legal move square
                     pygame.draw.ellipse(tile_group[tile_index].image, current_color_theme["LEGAL_MOVE"],

@@ -1,29 +1,41 @@
 import pygame
 from window_sizing import ScaleSurface
 
-def instasiate_pieces(FEN):
 
+def instasiate_pieces(FEN):
     fen = FEN.split(" ")[0].split("/")[:8]
 
     piece_group = []
     tile_index = 0
     for row in fen:
         for item in row:
-            if item == "p": piece_group.append(Pawn("black", tile_index))
-            elif item == "P": piece_group.append(Pawn("white", tile_index))
-            elif item == "r": piece_group.append(Rook("black", tile_index))
-            elif item == "R": piece_group.append(Rook("white", tile_index))
-            elif item == "n": piece_group.append(Knight("black", tile_index))
-            elif item == "N": piece_group.append(Knight("white", tile_index))
-            elif item == "b": piece_group.append(Bishop("black", tile_index))
-            elif item == "B": piece_group.append(Bishop("white", tile_index))
-            elif item == "k": piece_group.append(King("black", tile_index))
-            elif item == "K": piece_group.append(King("white", tile_index))
-            elif item == "q": piece_group.append(Queen("black", tile_index))
-            elif item == "Q": piece_group.append(Queen("white", tile_index))
+            if item == "p":
+                piece_group.append(Pawn("black", tile_index))
+            elif item == "P":
+                piece_group.append(Pawn("white", tile_index))
+            elif item == "r":
+                piece_group.append(Rook("black", tile_index))
+            elif item == "R":
+                piece_group.append(Rook("white", tile_index))
+            elif item == "n":
+                piece_group.append(Knight("black", tile_index))
+            elif item == "N":
+                piece_group.append(Knight("white", tile_index))
+            elif item == "b":
+                piece_group.append(Bishop("black", tile_index))
+            elif item == "B":
+                piece_group.append(Bishop("white", tile_index))
+            elif item == "k":
+                piece_group.append(King("black", tile_index))
+            elif item == "K":
+                piece_group.append(King("white", tile_index))
+            elif item == "q":
+                piece_group.append(Queen("black", tile_index))
+            elif item == "Q":
+                piece_group.append(Queen("white", tile_index))
 
             else:
-                tile_index += int(item)-1
+                tile_index += int(item) - 1
             tile_index += 1
     return piece_group
 
@@ -49,75 +61,133 @@ class Piece():
         else:
             self.resize(self.parent, 1)
 
-    def generate_legal_moves(self, tile_group):
+    def generate_legal_moves(self, tile_group, piece_group):
         print("dont be here")
         return [self.tile_index, 24, 45, 34]
 
-def generate_orthogonal_moves(tile_index, tile_group):
+
+def generate_orthogonal_moves(tile_index, tile_group, color, piece_group):
+    pieces_on_these_indices = []
+    for piece in piece_group:
+        pieces_on_these_indices.append(piece.tile_index)
+    pieces_on_these_indices.remove(tile_index)
+
     legal_moves = [tile_index]
 
     # left row
     index = tile_index
-    while index % 8 != 0:
+    while index % 8 != 0 and index not in pieces_on_these_indices:
         legal_moves.append(index)
         index -= 1
-    legal_moves.append(index)
+    if index in pieces_on_these_indices:
+        for piece in piece_group:
+            if piece.tile_index == index:
+                if piece.color != color:
+                    legal_moves.append(index)
+    else:
+        legal_moves.append(index)
 
     # right row
     index = tile_index + 1
-    while index % 8 != 0:
+    while index % 8 != 0 and index not in pieces_on_these_indices:
         legal_moves.append(index)
         index += 1
+    if index in pieces_on_these_indices:
+        for piece in piece_group:
+            if piece.tile_index == index:
+                if piece.color != color:
+                    legal_moves.append(index)
 
     # up column
     index = tile_index
-    while index > 7:
+    while index > 7 and index not in pieces_on_these_indices:
         legal_moves.append(index)
         index -= 8
-    legal_moves.append(index)
+    if index in pieces_on_these_indices:
+        for piece in piece_group:
+            if piece.tile_index == index:
+                if piece.color != color:
+                    legal_moves.append(index)
+    else:
+        legal_moves.append(index)
 
     # down column
     index = tile_index
-    while index < 56:
+    while index < 56 and index not in pieces_on_these_indices:
         legal_moves.append(index)
         index += 8
-    legal_moves.append(index)
+    if index in pieces_on_these_indices:
+        for piece in piece_group:
+            if piece.tile_index == index:
+                if piece.color != color:
+                    legal_moves.append(index)
+    else:
+        legal_moves.append(index)
 
     return legal_moves
 
 
-def generate_diagonal_moves(tile_index, tile_group):
-    legal_moves = [tile_index]
+def generate_diagonal_moves(tile_index, tile_group, color, piece_group):
+    pieces_on_these_indices = []
+    for piece in piece_group:
+        pieces_on_these_indices.append(piece.tile_index)
+    pieces_on_these_indices.remove(tile_index)
 
+    legal_moves = [tile_index]
     # top left diagonal
     index = tile_index
-    while index % 8 != 0 and index > 7:
+
+    while index % 8 != 0 and index > 7 and index not in pieces_on_these_indices:
         legal_moves.append(index)
         index -= 9
-    legal_moves.append(index)
+    if index in pieces_on_these_indices:
+        for piece in piece_group:
+            if piece.tile_index == index:
+                if piece.color != color:
+                    legal_moves.append(index)
+    else:
+        legal_moves.append(index)
 
     # top right diagonal
     index = tile_index
-    while (index+1) % 8 != 0 and index > 7:
+    while (index + 1) % 8 != 0 and index > 7 and index not in pieces_on_these_indices:
+        legal_moves.append(index)
         index -= 7
+    if index in pieces_on_these_indices:
+        for piece in piece_group:
+            if piece.tile_index == index:
+                if piece.color != color:
+                    legal_moves.append(index)
+    else:
         legal_moves.append(index)
 
     # bottom left diagonal
     index = tile_index
-    while index % 8 != 0 and index < 56:
+    while index % 8 != 0 and index < 56 and index not in pieces_on_these_indices:
         legal_moves.append(index)
         index += 7
-    legal_moves.append(index)
+    if index in pieces_on_these_indices:
+        for piece in piece_group:
+            if piece.tile_index == index:
+                if piece.color != color:
+                    legal_moves.append(index)
+    else:
+        legal_moves.append(index)
 
     # bottom right diagonal
     index = tile_index
-    while (index+1) % 8 != 0 and index < 56:
+    while (index + 1) % 8 != 0 and index < 56 and index not in pieces_on_these_indices:
         legal_moves.append(index)
         index += 9
-    legal_moves.append(index)
+    if index in pieces_on_these_indices:
+        for piece in piece_group:
+            if piece.tile_index == index:
+                if piece.color != color:
+                    legal_moves.append(index)
+    else:
+        legal_moves.append(index)
 
     return legal_moves
-
 
 
 class Pawn(Piece):
@@ -131,23 +201,62 @@ class Pawn(Piece):
             self.name = "P"
             super().__init__("img/white_pawn.svg", tile_index, color)
 
-    def generate_legal_moves(self, tile_group):
+    # TODO: optimise generation using friendly pieces not larger list
+    def generate_legal_moves(self, tile_group, piece_group):
+        pieces_on_these_indices = []
+        for piece in piece_group:
+            pieces_on_these_indices.append(piece.tile_index)
+        pieces_on_these_indices.remove(self.tile_index)
+
+        legal_moves = [self.tile_index]
         if self.color == "white":
-            if 47 < self.tile_index < 56:  # home rank can move double
-                return [self.tile_index, self.tile_index - 8, self.tile_index - 16]
+            # check for pawn captures
+            if self.tile_index - 7 in pieces_on_these_indices or self.tile_index - 9 in pieces_on_these_indices:
+                for piece in piece_group:
+                    if (piece.tile_index == self.tile_index - 7 or piece.tile_index == self.tile_index - 9) and \
+                            piece.color != self.color:
+                        legal_moves.append(piece.tile_index)
+
+            # if on back rank
+            if 0 <= self.tile_index <= 7:
+                print("time to queen")  # TODO: pawn promotion
+                return [self.tile_index]
+                # check whats blocking
+            # home rank can move double
+            elif 47 < self.tile_index < 56 and self.tile_index - 16 not in pieces_on_these_indices \
+                    and self.tile_index - 8 not in pieces_on_these_indices:
+                # move two squares if on home rank (and nothihng blocking)
+                return legal_moves + [self.tile_index - 8, self.tile_index - 16]
+            elif self.tile_index - 8 in pieces_on_these_indices:
+                return legal_moves
             else:
-                if 0 <= self.tile_index <= 7:
-                    print("time to queen")  # TODO: pawn promotion
-                    return [self.tile_index]
-                return [self.tile_index, self.tile_index - 8]
+                return legal_moves + [self.tile_index, self.tile_index - 8]
+
+        # for a black pawn
         else:
-            if 7 < self.tile_index < 16:  # home rank can move double
-                return [self.tile_index, self.tile_index + 8, self.tile_index + 16]
+            # check for pawn captures
+            if self.tile_index + 7 in pieces_on_these_indices or self.tile_index + 9 in pieces_on_these_indices:
+                for piece in piece_group:
+                    if (piece.tile_index == self.tile_index + 7 or piece.tile_index == self.tile_index + 9) and \
+                            piece.color != self.color:
+                        legal_moves.append(piece.tile_index)
+
+            # if on back rank
+            if 56 <= self.tile_index <= 65:
+                print("time to queen")  # TODO: pawn promotion
+                return [self.tile_index]
+
+            # check whats blocking
+            # home rank can move double
+            elif 7 < self.tile_index < 16 and self.tile_index + 16 not in pieces_on_these_indices \
+                    and self.tile_index + 8 not in pieces_on_these_indices:
+                # move two squares if on home rank (and nothihng blocking)
+                return legal_moves + [self.tile_index + 8, self.tile_index + 16]
+            elif self.tile_index + 8 in pieces_on_these_indices:
+                return legal_moves
             else:
-                if 56 <= self.tile_index <= 65:
-                    print("time to queen")  # TODO: pawn promotion
-                    return [self.tile_index]
-                return [self.tile_index, self.tile_index + 8]
+                return legal_moves + [self.tile_index + 8]
+
 
 class Rook(Piece):
     def __init__(self, color, tile_index):
@@ -159,8 +268,8 @@ class Rook(Piece):
             self.name = "R"
             super().__init__("img/white_rook.svg", tile_index, color)
 
-    def generate_legal_moves(self, tile_group):
-        return generate_orthogonal_moves(self.tile_index, tile_group)
+    def generate_legal_moves(self, tile_group, piece_group):
+        return generate_orthogonal_moves(self.tile_index, tile_group, self.color, piece_group)
 
 
 class Knight(Piece):
@@ -173,33 +282,40 @@ class Knight(Piece):
             self.name = "N"
             super().__init__("img/white_knight.svg", tile_index, color)
 
-    def generate_legal_moves(self, tile_list):
+    def generate_legal_moves(self, tile_list, piece_group):
+        friendly_pieces = []
+        for piece in piece_group:
+            if piece.color == self.color:
+                friendly_pieces.append(piece.tile_index)
+        friendly_pieces.remove(self.tile_index)
+
         legal_moves = [self.tile_index]
         coordinate = tile_list[self.tile_index].pos
         # top left
-        if coordinate[0] > 1 and coordinate[1] > 2:
+        if coordinate[0] > 1 and coordinate[1] > 2 and (self.tile_index-17) not in friendly_pieces:
             legal_moves.append(self.tile_index - 17)
         # top right
-        if coordinate[0] < 8 and coordinate[1] > 2:
+        if coordinate[0] < 8 and coordinate[1] > 2 and (self.tile_index-15) not in friendly_pieces:
             legal_moves.append(self.tile_index - 15)
         # left top
-        if coordinate[0] > 2 and coordinate[1] > 1:
+        if coordinate[0] > 2 and coordinate[1] > 1 and (self.tile_index-10) not in friendly_pieces:
             legal_moves.append(self.tile_index - 10)
         # left bottom
-        if coordinate[0] > 2 and coordinate[1] < 8:
+        if coordinate[0] > 2 and coordinate[1] < 8 and (self.tile_index+6) not in friendly_pieces:
             legal_moves.append(self.tile_index + 6)
         # bottom left
-        if coordinate[0] > 1 and coordinate[1] < 7:
+        if coordinate[0] > 1 and coordinate[1] < 7 and (self.tile_index+15) not in friendly_pieces:
             legal_moves.append(self.tile_index + 15)
         # bottom right
-        if coordinate[0] < 8 and coordinate[1] < 7:
+        if coordinate[0] < 8 and coordinate[1] < 7 and (self.tile_index+17) not in friendly_pieces:
             legal_moves.append(self.tile_index + 17)
         # right bottom
-        if coordinate[0] < 7 and coordinate[1] < 8:
+        if coordinate[0] < 7 and coordinate[1] < 8 and (self.tile_index+10) not in friendly_pieces:
             legal_moves.append(self.tile_index + 10)
         # right top
-        if coordinate[0] < 7 and coordinate[1] > 1:
+        if coordinate[0] < 7 and coordinate[1] > 1 and (self.tile_index-6) not in friendly_pieces:
             legal_moves.append(self.tile_index - 6)
+
         return legal_moves
 
 
@@ -213,8 +329,8 @@ class Bishop(Piece):
             self.name = "B"
             super().__init__("img/white_bishop.svg", tile_index, color)
 
-    def generate_legal_moves(self, tile_group):
-        return generate_diagonal_moves(self.tile_index, tile_group)
+    def generate_legal_moves(self, tile_group, piece_group):
+        return generate_diagonal_moves(self.tile_index, tile_group, self.color, piece_group)
 
 
 class King(Piece):
@@ -227,7 +343,13 @@ class King(Piece):
             self.name = "K"
             super().__init__("img/white_king.svg", tile_index, color)
 
-    def generate_legal_moves(self, tile_group):
+    def generate_legal_moves(self, tile_group, piece_group):
+        friendly_pieces = []
+        for piece in piece_group:
+            if piece.color == self.color:
+                friendly_pieces.append(piece.tile_index)
+        friendly_pieces.remove(self.tile_index)
+
         index = self.tile_index
         coordinate = tile_group[self.tile_index].pos
         legal_moves = [index]
@@ -238,25 +360,45 @@ class King(Piece):
 
         # orthogonal directions, and decide if diagonals are legal
         if coordinate[0] != 8:
-            legal_moves.append(index + 1)  # left
-        else: ur, dr = False, False
+            if (index+1) not in friendly_pieces:
+                legal_moves.append(index + 1)  # left
+        else:
+            ur, dr = False, False
+
         if coordinate[0] != 1:
-            legal_moves.append(index- 1)  # right
-        else: ul, dl = False, False
+            if (index-1) not in friendly_pieces:
+                legal_moves.append(index - 1)  # right
+        else:
+            ul, dl = False, False
+
         if coordinate[1] != 1:
-            legal_moves.append(index - 8)  # up
-        else: ul, ur = False, False
+            if (index-8) not in friendly_pieces:
+                legal_moves.append(index - 8)  # up
+        else:
+            ul, ur = False, False
+
         if coordinate[1] != 8:
-            legal_moves.append(index + 8)  # down
-        else: dl, dr = False, False
+            if (index+8) not in friendly_pieces:
+                legal_moves.append(index + 8)  # down
+        else:
+            dl, dr = False, False
 
         # diagonals
-        if ul: legal_moves.append(index - 9)
-        if ur: legal_moves.append(index - 7)
-        if dl: legal_moves.append(index + 7)
-        if dr: legal_moves.append(index + 9)
+        if ul:
+            if (index-9) not in friendly_pieces:
+                legal_moves.append(index - 9)
+        if ur:
+            if (index-7) not in friendly_pieces:
+                legal_moves.append(index - 7)
+        if dl:
+            if (index+7) not in friendly_pieces:
+                legal_moves.append(index + 7)
+        if dr:
+            if (index+9) not in friendly_pieces:
+                legal_moves.append(index + 9)
 
         return legal_moves
+
 
 class Queen(Piece):
     def __init__(self, color, tile_index):
@@ -268,5 +410,6 @@ class Queen(Piece):
             self.name = "Q"
             super().__init__("img/white_queen.svg", tile_index, color)
 
-    def generate_legal_moves(self, tile_group):
-        return generate_diagonal_moves(self.tile_index, tile_group) + generate_orthogonal_moves(self.tile_index, tile_group)
+    def generate_legal_moves(self, tile_group, piece_group):
+        return generate_diagonal_moves(self.tile_index, tile_group, self.color, piece_group) + \
+               generate_orthogonal_moves(self.tile_index, tile_group, self.color, piece_group)
