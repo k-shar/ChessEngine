@@ -179,7 +179,7 @@ class HintsToggle(Button):
 
 class EvaluationSlider(ScaleSurface):
     def __init__(self, name, is_top):
-        self.slide = 0.8
+        self.slide = 0
         self.is_top = is_top
         super().__init__(name, (1, 15), (0.5, 0.5), 1)
         self.parent = None

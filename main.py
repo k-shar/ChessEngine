@@ -5,7 +5,7 @@ from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsTogg
 from tiles import Tile
 from pieces import *
 from fen_manipulation import is_valid_fen, make_move_on_FEN
-from evaluation import generate_evaluation_spectrum, normalise_evaluation
+from evaluation import generate_evaluation_spectrum, static_evaluation
 import colors
 import random
 from bouncing_ball import Bouncy
@@ -23,13 +23,17 @@ def game(screen):
     balls = []
     legal_tile_indices = []
     fade_indexer = 0
-    evaluation = 0.5
-    evaluation_transition = [evaluation]
+    evaluation_transition = [0]
 
     # STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/1111R111/11111111/11111r11/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "1111p111/111111P1/1B11Qqn1/1N11R11k/1K1b111N/n1111r11/b111B111/11Q111q1 w KQkq"
     STARTING_FEN = "1B11111p/ppppp11b/1111B111/111r111b/11111111/11111111/1PPPPR11/11111P11 w KQkq"
+    STARTING_FEN = "11111111/11111111/11111111/11111111/11111111/11111111/11111111/11111111 w KQkq"
+    STARTING_FEN = "1111p111/111111P1/1B11Qqn1/1N11R11k/1K1b111N/n1111r11/b111B111/11Q111q1 w KQkq"
+    STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
+    STARTING_FEN = "1B11111b/1111b11R/1111B111/111r111b/1111111r/1R111111/p1111r11/11111B11 w KQkq"
+    STARTING_FEN = "11111n1N/11N111n1/11r11111/11Q11pp1/111n1111/111N1111/1p1n1PPP/111111Nn w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
 
     is_valid_fen(STARTING_FEN)
@@ -38,7 +42,7 @@ def game(screen):
     """ Initialise Surfaces """
     window = ScaleSurface("WINDOW", (16, 9), (0.5, 0.5), 1)
 
-    fps_counter = TextSurface("BORDER", (5, 3), (0.05, 0.05), 0.08, "0.0", 0.6, "TEXT", (1, 1))
+    fps_counter = TextSurface("BORDER", (4, 1), (0.9, 0.05), 0.15, "0.0", 0.6, "TEXT", (1, 1))
 
     # -- chess board and border --
     chess_board_border = ScaleSurface("BORDER", (1, 1), (0.35, 0.5), 0.9)
@@ -197,6 +201,7 @@ def game(screen):
                 eval_minimiser.resize(eval_bar_border.image)
                 eval_label_border.resize(eval_bar_border.image)
                 eval_label.resize(eval_label_border.image)
+                eval_label.draw_text(eval_label.active_text)
 
                 # - options menu -
                 options_border.resize(window.image)
@@ -288,6 +293,18 @@ def game(screen):
                                     # log the piece move
                                     player_move = active_piece.name, tile.coordinate, tile.pos
                                     active_FEN = make_move_on_FEN(active_FEN, player_move, old_tile.pos)
+
+                                    """ evaluate new FEN """
+                                    evaluation = static_evaluation(piece_group)
+                                    print(evaluation)
+
+                                    # update the slider
+                                    if len(evaluation_transition) > 0:
+                                        evaluation_transition = generate_evaluation_spectrum(evaluation_transition[-1], evaluation)
+                                    else:
+                                        evaluation_transition = generate_evaluation_spectrum(eval_minimiser.slide, evaluation)
+
+                                    print(active_FEN)
 
                         # deselect piece
                         active_piece.selected = False
@@ -487,7 +504,7 @@ def game(screen):
             window.image.blit(mouse_pointer, [pygame.mouse.get_pos()[0] - window_offset[0] - mouse_pointer_size//2,
                                               pygame.mouse.get_pos()[1] - window_offset[1] - mouse_pointer_size//2])
 
-        fps_counter.draw_text(f"{str(clock.get_fps())[:4]}")
+        fps_counter.draw_text(f"{str(clock.get_fps())[:4]} fps")
         window.image.blit(fps_counter.image, fps_counter.rect)
 
         # window

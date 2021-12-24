@@ -1,6 +1,8 @@
 from math import e
 from random import randint
 import matplotlib.pyplot as plt
+from engine_config import piece_values
+from pieces import Pawn, Rook, Knight, Bishop, Queen, King
 
 
 def normalise_evaluation(eval):
@@ -16,6 +18,30 @@ def generate_evaluation_spectrum(start, end):
         spectrum.append(start + (end-start)*i/N)
     spectrum.reverse()
     return spectrum
+
+
+def static_evaluation(piece_group):
+    evaluation = 0
+    polarity = 0
+
+    for piece in piece_group:
+        if piece.color == "white":
+            polarity = -1
+        if piece.color == "black":
+            polarity = 1
+
+        if type(piece) is Pawn:
+            evaluation += polarity * piece_values["pawn"]
+        if type(piece) is Rook:
+            evaluation += polarity * piece_values["rook"]
+        if type(piece) is Knight:
+            evaluation += polarity * piece_values["knight"]
+        if type(piece) is Bishop:
+            evaluation += polarity * piece_values["bishop"]
+        if type(piece) is Queen:
+            evaluation += polarity * piece_values["queen"]
+
+    return round(evaluation, 4)
 
 
 if __name__ == "__main__":

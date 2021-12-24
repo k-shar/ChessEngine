@@ -1,6 +1,4 @@
 import pygame
-from window_sizing import ScaleSurface
-
 
 def instasiate_pieces(FEN):
     fen = FEN.split(" ")[0].split("/")[:8]
@@ -67,23 +65,26 @@ class Piece():
 
 
 def generate_orthogonal_moves(tile_index, tile_group, color, piece_group):
-    pieces_on_these_indices = []
-    for piece in piece_group:
-        pieces_on_these_indices.append(piece.tile_index)
+    friendly_pieces = []
+    enemy_pieces = []
+    for piece in piece_group:  # extract the location of the pieces
+        if piece.color == color:
+            friendly_pieces.append(piece.tile_index)
+        else:
+            enemy_pieces.append(piece.tile_index)
+    pieces_on_these_indices = friendly_pieces + enemy_pieces
     pieces_on_these_indices.remove(tile_index)
 
-    legal_moves = [tile_index]
+    legal_moves = [tile_index]  # always return the pieces origonal square as a legal move
 
     # left row
     index = tile_index
-    while index % 8 != 0 and index not in pieces_on_these_indices:
+    while index % 8 != 0 and index not in pieces_on_these_indices:  # halt when hitting the right side of the board
         legal_moves.append(index)
-        index -= 1
-    if index in pieces_on_these_indices:
-        for piece in piece_group:
-            if piece.tile_index == index:
-                if piece.color != color:
-                    legal_moves.append(index)
+        index -= 1  # -1 moves the index pointer to the left square
+    if index in pieces_on_these_indices:  # a piece has been hit
+        if index in enemy_pieces:
+            legal_moves.append(index)  # its legal to capture an enemy piece
     else:
         legal_moves.append(index)
 
@@ -93,10 +94,8 @@ def generate_orthogonal_moves(tile_index, tile_group, color, piece_group):
         legal_moves.append(index)
         index += 1
     if index in pieces_on_these_indices:
-        for piece in piece_group:
-            if piece.tile_index == index:
-                if piece.color != color:
-                    legal_moves.append(index)
+        if index in enemy_pieces:
+            legal_moves.append(index)
 
     # up column
     index = tile_index
@@ -104,10 +103,8 @@ def generate_orthogonal_moves(tile_index, tile_group, color, piece_group):
         legal_moves.append(index)
         index -= 8
     if index in pieces_on_these_indices:
-        for piece in piece_group:
-            if piece.tile_index == index:
-                if piece.color != color:
-                    legal_moves.append(index)
+        if index in enemy_pieces:
+            legal_moves.append(index)
     else:
         legal_moves.append(index)
 
@@ -117,10 +114,8 @@ def generate_orthogonal_moves(tile_index, tile_group, color, piece_group):
         legal_moves.append(index)
         index += 8
     if index in pieces_on_these_indices:
-        for piece in piece_group:
-            if piece.tile_index == index:
-                if piece.color != color:
-                    legal_moves.append(index)
+        if index in enemy_pieces:
+            legal_moves.append(index)
     else:
         legal_moves.append(index)
 
@@ -128,23 +123,26 @@ def generate_orthogonal_moves(tile_index, tile_group, color, piece_group):
 
 
 def generate_diagonal_moves(tile_index, tile_group, color, piece_group):
-    pieces_on_these_indices = []
+    friendly_pieces = []
+    enemy_pieces = []
     for piece in piece_group:
-        pieces_on_these_indices.append(piece.tile_index)
+        if piece.color == color:
+            friendly_pieces.append(piece.tile_index)
+        else:
+            enemy_pieces.append(piece.tile_index)
+    pieces_on_these_indices = friendly_pieces + enemy_pieces
     pieces_on_these_indices.remove(tile_index)
 
     legal_moves = [tile_index]
+
     # top left diagonal
     index = tile_index
-
     while index % 8 != 0 and index > 7 and index not in pieces_on_these_indices:
         legal_moves.append(index)
         index -= 9
     if index in pieces_on_these_indices:
-        for piece in piece_group:
-            if piece.tile_index == index:
-                if piece.color != color:
-                    legal_moves.append(index)
+        if index in enemy_pieces:
+            legal_moves.append(index)
     else:
         legal_moves.append(index)
 
@@ -154,10 +152,8 @@ def generate_diagonal_moves(tile_index, tile_group, color, piece_group):
         legal_moves.append(index)
         index -= 7
     if index in pieces_on_these_indices:
-        for piece in piece_group:
-            if piece.tile_index == index:
-                if piece.color != color:
-                    legal_moves.append(index)
+        if index in enemy_pieces:
+            legal_moves.append(index)
     else:
         legal_moves.append(index)
 
@@ -167,10 +163,8 @@ def generate_diagonal_moves(tile_index, tile_group, color, piece_group):
         legal_moves.append(index)
         index += 7
     if index in pieces_on_these_indices:
-        for piece in piece_group:
-            if piece.tile_index == index:
-                if piece.color != color:
-                    legal_moves.append(index)
+        if index in enemy_pieces:
+            legal_moves.append(index)
     else:
         legal_moves.append(index)
 
@@ -180,10 +174,8 @@ def generate_diagonal_moves(tile_index, tile_group, color, piece_group):
         legal_moves.append(index)
         index += 9
     if index in pieces_on_these_indices:
-        for piece in piece_group:
-            if piece.tile_index == index:
-                if piece.color != color:
-                    legal_moves.append(index)
+        if index in enemy_pieces:
+            legal_moves.append(index)
     else:
         legal_moves.append(index)
 

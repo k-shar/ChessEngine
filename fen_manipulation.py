@@ -64,7 +64,6 @@ def make_move_on_FEN(fen, move, previous_square):
         new_fen += " " + component
 
     is_valid_fen(new_fen)
-    print(new_fen)
     return new_fen
 
 

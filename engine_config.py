@@ -4,6 +4,14 @@ MOUSE_TRAIL = False
 RAINBOW_COLOR_SPECTRUM_SIZE = 300
 FADE_DURATION = 15
 
+""" relative piece conversions """
+piece_values = {
+    "pawn": 1,
+    "rook": 5,
+    "knight": 3,
+    "bishop": 3.2,
+    "queen": 9
+}
 """ color themes """
 blue_theme = {
     "SCREEN": (6, 65, 76),
