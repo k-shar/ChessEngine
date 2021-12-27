@@ -4,7 +4,7 @@ from engine_config import *
 from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton, EvaluationSlider, EvaluationTextSlider
 from tiles import Tile
 from pieces import *
-from fen_manipulation import is_valid_fen, make_move_on_FEN
+from fen_manipulation import is_valid_fen, make_move_on_FEN, instasiate_pieces
 from evaluation import generate_evaluation_spectrum, static_evaluation, minimax
 import colors
 import random
@@ -30,12 +30,16 @@ def game(screen):
     STARTING_FEN = "1111p111/111111P1/1B11Qqn1/1N11R11k/1K1b111N/n1111r11/b111B111/11Q111q1 w KQkq"
     STARTING_FEN = "1B11111p/ppppp11b/1111B111/111r111b/11111111/11111111/1PPPPR11/11111P11 w KQkq"
     STARTING_FEN = "11111111/11111111/11111111/11111111/11111111/11111111/11111111/11111111 w KQkq"
+    STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"  # starting pos
     STARTING_FEN = "1B11111b/1111b11R/1111B111/111r111b/1111111r/1R111111/p1111r11/11111B11 w KQkq"
     STARTING_FEN = "11111n1N/11N111n1/11r11111/11Q11pp1/111n1111/111N1111/1p1n1PPP/111111Nn w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "1111p111/111111P1/1B11Qqn1/1N11R11k/1K1b111N/n1111r11/b111B111/11Q111q1 w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
-    STARTING_FEN = "11111111/11111111/11111111/1R11r1B1/11111111/11111111/11111111/11111111 w KQkq"
+    STARTING_FEN = "11111N11/1111P1b1/p1111N11/11111111/11111111/11111111/11111111/11111111 w KQkq"  # test 4
+    STARTING_FEN = "11111111/11111111/11111111/1r1111B1/11111111/1R111111/11111111/11111111 w KQkq"  # test 1
+    STARTING_FEN = "1p111111/11111N11/111111P1/111b1111/11111111/1N111111/11111111/11111111 w KQkq"  # test 3
+    STARTING_FEN = "11111111/11111N11/11111111/111b1111/11111111/1N111111/11P11111/11111111 w KQkq"  # test 2
 
     is_valid_fen(STARTING_FEN)
     active_FEN = STARTING_FEN
@@ -295,9 +299,12 @@ def game(screen):
                                     player_move = active_piece.name, tile.coordinate, tile.pos
                                     active_FEN = make_move_on_FEN(active_FEN, player_move, old_tile.pos)
 
+
                                     """ evaluate new FEN """
-                                    minimax(piece_group.copy(), tile_group, 1, True)
-                                    evaluation = static_evaluation(piece_group)
+                                    active_FEN, evaluation = minimax(active_FEN, tile_group, 2, True)
+                                    piece_group = instasiate_pieces(active_FEN)
+                                    for piece in piece_group:
+                                        piece.resize(tile_group[piece.tile_index].image.get_rect().size, 1)
 
                                     # update the slider
                                     if len(evaluation_transition) > 0:
@@ -386,6 +393,7 @@ def game(screen):
                             tile.image.fill(tile.color)
 
                         piece_group = instasiate_pieces(STARTING_FEN)
+                        active_FEN = STARTING_FEN
                         # size pieces up
                         for piece in piece_group:
                             piece.resize(tile_group[piece.tile_index].image.get_rect().size, 1)

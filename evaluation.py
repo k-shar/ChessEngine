@@ -3,6 +3,7 @@ from random import randint
 import matplotlib.pyplot as plt
 from engine_config import piece_values
 from pieces import Pawn, Rook, Knight, Bishop, Queen, King
+from fen_manipulation import instasiate_pieces, make_move_on_FEN
 
 
 def normalise_evaluation(eval):
@@ -49,32 +50,72 @@ def static_evaluation(piece_group):
     return round(relative_piece_sum(piece_group), 4)
 
 
-def minimax(input_piece_group, tile_group, depth, maximising):
+def minimax(FEN, tile_group, depth, maximising):
+    piece_group = instasiate_pieces(FEN)
 
-    maximising = True
     if depth == 0:  # TODO: add game over
-        return static_evaluation(input_piece_group)
+        return FEN, static_evaluation(piece_group)
 
-    # if we are trying to maximise the evaluation
     if maximising:
-        current_move_evaluation = -999
         best_move = None
         best_evaluation = -999
 
-        for i in range(len(input_piece_group)):
-            if input_piece_group[i].color == "black":  # only move the friendly pieces
-                for move in input_piece_group[i].generate_legal_moves(tile_group, input_piece_group):
+        for i in range(len(piece_group)):
+            if piece_group[i].color == "black":  # only move the friendly pieces
+                for move in piece_group[i].generate_legal_moves(tile_group, piece_group):
+                    if move != piece_group[i].tile_index:
+                        # play this move
+                        for tile in tile_group:
+                            if tile.tile_index == piece_group[i].tile_index:
+                                old_tile = tile
+                            elif tile.tile_index == move:
+                                new_tile = tile
+                        move = piece_group[i].name, new_tile.coordinate, new_tile.pos
+                        new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
 
-                    # test this move by playing it
-                    analysis_piece_group = input_piece_group.copy()
-                    analysis_piece_group[i].tile_index = move
-                    current_move_evaluation = minimax(analysis_piece_group, tile_group, depth - 1, False) # TODO: make move on fen
-                    print(move)
-                    if current_move_evaluation > best_evaluation:
-                        best_evaluation = current_move_evaluation
-                        best_move = input_piece_group[i], move
+                        # evaluate move
+                        current_move_evaluation = minimax(new_fen, tile_group, depth - 1, False)[1]
+                        # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
 
-    print(best_evaluation, best_move)
+
+                        if current_move_evaluation > best_evaluation:
+                            # bishop is 0.2, should be -3
+                            best_evaluation = current_move_evaluation
+                            best_move = new_fen, move
+
+        return best_move[0], best_evaluation
+
+    # minimising case
+    else:
+        best_move = None
+        best_evaluation = 999
+
+        for i in range(len(piece_group)):
+            if piece_group[i].color == "white":  # only move the friendly pieces
+                for move in piece_group[i].generate_legal_moves(tile_group, piece_group):
+                    if move != piece_group[i].tile_index:
+
+                        # play this move
+                        for tile in tile_group:
+                            if tile.tile_index == piece_group[i].tile_index:
+                                old_tile = tile
+                            elif tile.tile_index == move:
+                                new_tile = tile
+                        move = piece_group[i].name, new_tile.coordinate, new_tile.pos
+                        new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
+
+                        # evaluate move
+                        current_move_evaluation = minimax(new_fen, tile_group, depth - 1, True)[1]
+
+                        # print(move, piece_group[i], current_move_evaluation, depth)
+                        # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
+
+                        if current_move_evaluation < best_evaluation:
+                            best_evaluation = current_move_evaluation
+                            best_move = new_fen, move
+
+
+        return best_move[0], best_evaluation
 
 
 if __name__ == "__main__":

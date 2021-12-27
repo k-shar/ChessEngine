@@ -1,42 +1,5 @@
 import pygame
 
-def instasiate_pieces(FEN):
-    fen = FEN.split(" ")[0].split("/")[:8]
-
-    piece_group = []
-    tile_index = 0
-    for row in fen:
-        for item in row:
-            if item == "p":
-                piece_group.append(Pawn("black", tile_index))
-            elif item == "P":
-                piece_group.append(Pawn("white", tile_index))
-            elif item == "r":
-                piece_group.append(Rook("black", tile_index))
-            elif item == "R":
-                piece_group.append(Rook("white", tile_index))
-            elif item == "n":
-                piece_group.append(Knight("black", tile_index))
-            elif item == "N":
-                piece_group.append(Knight("white", tile_index))
-            elif item == "b":
-                piece_group.append(Bishop("black", tile_index))
-            elif item == "B":
-                piece_group.append(Bishop("white", tile_index))
-            elif item == "k":
-                piece_group.append(King("black", tile_index))
-            elif item == "K":
-                piece_group.append(King("white", tile_index))
-            elif item == "q":
-                piece_group.append(Queen("black", tile_index))
-            elif item == "Q":
-                piece_group.append(Queen("white", tile_index))
-
-            else:
-                tile_index += int(item) - 1
-            tile_index += 1
-    return piece_group
-
 
 class Piece():
     def __init__(self, file, tile_index, color):
