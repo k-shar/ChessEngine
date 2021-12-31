@@ -1,4 +1,5 @@
 import pygame
+from engine_config import knight_square_table, pawn_square_table, bishop_square_table, rook_square_table
 
 
 class Piece():
@@ -7,6 +8,10 @@ class Piece():
         self.tile_index = tile_index
         self.selected = False
         self.color = color
+        self.location_evaluation = 0
+
+    def set_location_evaluation(self, tile_group):
+        return tile_group[self.tile_index].pos
 
     def resize(self, rect, enlarge):
         self.parent = rect
@@ -156,7 +161,13 @@ class Pawn(Piece):
             self.name = "P"
             super().__init__("img/white_pawn.svg", tile_index, color)
 
-    # TODO: optimise generation using friendly pieces not larger list
+    def set_location_evaluation(self, tile_group):
+        coord = super().set_location_evaluation(tile_group)
+        if self.color == "white":
+            self.location_evaluation = pawn_square_table[coord[1]-1][coord[0]-1]
+        else:
+            self.location_evaluation = pawn_square_table[8 - coord[1]][coord[0] - 1]
+
     def generate_legal_moves(self, tile_group, piece_group):
         pieces_on_these_indices = []
         for piece in piece_group:
@@ -223,6 +234,13 @@ class Rook(Piece):
             self.name = "R"
             super().__init__("img/white_rook.svg", tile_index, color)
 
+    def set_location_evaluation(self, tile_group):
+        coord = super().set_location_evaluation(tile_group)
+        if self.color == "white":
+            self.location_evaluation = rook_square_table[coord[1]-1][coord[0]-1]
+        else:
+            self.location_evaluation = rook_square_table[8 - coord[1]][coord[0] - 1]
+
     def generate_legal_moves(self, tile_group, piece_group):
         return generate_orthogonal_moves(self.tile_index, tile_group, self.color, piece_group)
 
@@ -236,6 +254,16 @@ class Knight(Piece):
         if self.color == "white":
             self.name = "N"
             super().__init__("img/white_knight.svg", tile_index, color)
+        self.location_evaluation = 0
+
+    def set_location_evaluation(self, tile_group):
+        coord = super().set_location_evaluation(tile_group)
+        if self.color == "white":
+            self.location_evaluation = knight_square_table[coord[1]-1][coord[0]-1]
+        else:
+            self.location_evaluation = knight_square_table[8 - coord[1]][coord[0] - 1]
+
+
 
     def generate_legal_moves(self, tile_list, piece_group):
         friendly_pieces = []
@@ -283,6 +311,13 @@ class Bishop(Piece):
         if self.color == "white":
             self.name = "B"
             super().__init__("img/white_bishop.svg", tile_index, color)
+
+    def set_location_evaluation(self, tile_group):
+        coord = super().set_location_evaluation(tile_group)
+        if self.color == "white":
+            self.location_evaluation = bishop_square_table[coord[1]-1][coord[0]-1]
+        else:
+            self.location_evaluation = bishop_square_table[8 - coord[1]][coord[0] - 1]
 
     def generate_legal_moves(self, tile_group, piece_group):
         return generate_diagonal_moves(self.tile_index, tile_group, self.color, piece_group)

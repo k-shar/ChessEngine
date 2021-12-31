@@ -5,7 +5,7 @@ from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsTogg
 from tiles import Tile
 from pieces import *
 from fen_manipulation import is_valid_fen, make_move_on_FEN, instasiate_pieces
-from evaluation import generate_evaluation_spectrum, alphabeta
+from evaluation import generate_evaluation_spectrum, alphabeta, static_evaluation
 import colors
 import random
 from bouncing_ball import Bouncy
@@ -13,10 +13,11 @@ import time
 
 
 def game(screen):
-    pygame.display.set_caption("Iteration 2.0 chess engine")
+    pygame.display.set_caption("Iteration 2.2 chess engine")
     clock = pygame.time.Clock()
     # pygame.mouse.set_visible(False)
 
+    do_engine = True
     active_piece = None
     show_ui = True
     show_coordinates = False
@@ -24,7 +25,9 @@ def game(screen):
     balls = []
     legal_tile_indices = []
     fade_indexer = 0
-    evaluation_transition = [0]
+    time_to_move = "White to move"
+    evaluation = 0
+    evaluation_transition = [evaluation]
 
     # STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/1111R111/11111111/11111r11/PPPPPPPP/RNBQKBNR w KQkq"
@@ -40,8 +43,8 @@ def game(screen):
     STARTING_FEN = "11111111/11111111/11111111/1r1111B1/11111111/1R111111/11111111/11111111 w KQkq"  # test 1
     STARTING_FEN = "1p111111/11111N11/111111P1/111b1111/11111111/1N111111/11111111/11111111 w KQkq"  # test 3
     STARTING_FEN = "1p111111/11111N11/11111111/111b1111/11111111/1N111111/11P11111/11111111 w KQkq"  # test 2
-    STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"  # starting pos
     STARTING_FEN = "1nbqnbr1/11ppp1p1/11111111/11111111/11111111/11111111/11PPP1P1/1NBQNBR1 w KQkq"  # simple start
+    STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"  # starting pos
 
     is_valid_fen(STARTING_FEN)
     active_FEN = STARTING_FEN
@@ -301,16 +304,21 @@ def game(screen):
                                     player_move = active_piece.name, tile.coordinate, tile.pos
                                     active_FEN = make_move_on_FEN(active_FEN, player_move, old_tile.pos)
 
+                                    # update its piece-square table evaluation
+                                    active_piece.set_location_evaluation(tile_group)
 
                                     """ evaluate new FEN """
-                                    now = time.time()
-                                    active_FEN, evaluation = alphabeta(active_FEN, tile_group, 2, True, -999, 999)
-                                    print(time.time() - now)
+                                    if do_engine:
+                                        now = time.time()
+                                        active_FEN, evaluation = alphabeta(active_FEN, tile_group, 2, True, -999, 999)
+                                        time_to_move = time.time() - now
+                                        print(time_to_move)
 
-                                    piece_group = instasiate_pieces(active_FEN)
-                                    for piece in piece_group:
-                                        piece.resize(tile_group[piece.tile_index].image.get_rect().size, 1)
-
+                                        piece_group = instasiate_pieces(active_FEN)
+                                        for piece in piece_group:
+                                            piece.resize(tile_group[piece.tile_index].image.get_rect().size, 1)
+                                    else:
+                                        evaluation = static_evaluation(piece_group)
                                     # update the slider
                                     if len(evaluation_transition) > 0:
                                         evaluation_transition = generate_evaluation_spectrum(evaluation_transition[-1], evaluation)
@@ -462,7 +470,7 @@ def game(screen):
             options_border.image.blit(reset_board.image, reset_board.rect)
 
             # text output
-            text_output.draw_text(str(player_move))
+            text_output.draw_text(time_to_move)
             options_border.image.blit(text_output.image, text_output.rect)
             window.image.blit(options_border.image, options_border.rect)
 

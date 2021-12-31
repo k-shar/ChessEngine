@@ -46,14 +46,28 @@ def relative_piece_sum(piece_group):
     return evaluation
 
 
+def piece_square_tables(piece_group):
+    eval = 0
+    for piece in piece_group:
+        if piece.color == "white":
+            eval -= piece.location_evaluation
+        else:
+            eval += piece.location_evaluation
+    return eval
+
+
 def static_evaluation(piece_group):
-    return round(relative_piece_sum(piece_group), 4)
+    evaluation = piece_square_tables(piece_group) + piece_square_tables(piece_group)
+    return round(evaluation, 4)
 
 
-def minimax(FEN, tile_group, depth, maximising):
+def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
     piece_group = instasiate_pieces(FEN)
 
     if depth == 0:  # TODO: add game over
+        for piece in piece_group:
+            piece.set_location_evaluation(tile_group)  # update its location evaluation
+
         return FEN, static_evaluation(piece_group)
 
     if maximising:
@@ -74,14 +88,17 @@ def minimax(FEN, tile_group, depth, maximising):
                         new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
 
                         # evaluate move
-                        current_move_evaluation = minimax(new_fen, tile_group, depth - 1, False)[1]
+                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, False, alpha, beta)[1]
                         # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
-
 
                         if current_move_evaluation > best_evaluation:
                             # bishop is 0.2, should be -3
                             best_evaluation = current_move_evaluation
                             best_move = new_fen, move
+
+                        alpha = max(alpha, best_evaluation)
+                        if best_evaluation >= beta:
+                            break
 
         return best_move[0], best_evaluation
 
@@ -105,7 +122,7 @@ def minimax(FEN, tile_group, depth, maximising):
                         new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
 
                         # evaluate move
-                        current_move_evaluation = minimax(new_fen, tile_group, depth - 1, True)[1]
+                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, True, alpha, beta)[1]
 
                         # print(move, piece_group[i], current_move_evaluation, depth)
                         # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
@@ -113,6 +130,10 @@ def minimax(FEN, tile_group, depth, maximising):
                         if current_move_evaluation < best_evaluation:
                             best_evaluation = current_move_evaluation
                             best_move = new_fen, move
+
+                        beta = min(beta, best_evaluation)
+                        if best_evaluation <= alpha:
+                            break
 
 
         return best_move[0], best_evaluation
