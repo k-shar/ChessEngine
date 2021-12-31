@@ -57,7 +57,7 @@ def piece_square_tables(piece_group):
 
 
 def static_evaluation(piece_group):
-    evaluation = piece_square_tables(piece_group) + piece_square_tables(piece_group)
+    evaluation = relative_piece_sum(piece_group) + piece_square_tables(piece_group)
     return round(evaluation, 4)
 
 

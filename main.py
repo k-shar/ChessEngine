@@ -25,7 +25,7 @@ def game(screen):
     balls = []
     legal_tile_indices = []
     fade_indexer = 0
-    time_to_move = "White to move"
+    time_to_move = 0
     evaluation = 0
     evaluation_transition = [evaluation]
 
@@ -470,7 +470,7 @@ def game(screen):
             options_border.image.blit(reset_board.image, reset_board.rect)
 
             # text output
-            text_output.draw_text(time_to_move)
+            text_output.draw_text(str(round(time_to_move, 4)))
             options_border.image.blit(text_output.image, text_output.rect)
             window.image.blit(options_border.image, options_border.rect)
 
