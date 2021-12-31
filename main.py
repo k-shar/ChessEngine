@@ -5,7 +5,7 @@ from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsTogg
 from tiles import Tile
 from pieces import *
 from fen_manipulation import is_valid_fen, make_move_on_FEN, instasiate_pieces
-from evaluation import generate_evaluation_spectrum, static_evaluation, minimax
+from evaluation import generate_evaluation_spectrum, alphabeta
 import colors
 import random
 from bouncing_ball import Bouncy
@@ -36,11 +36,12 @@ def game(screen):
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "1111p111/111111P1/1B11Qqn1/1N11R11k/1K1b111N/n1111r11/b111B111/11Q111q1 w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
-    STARTING_FEN = "11111111/11111111/11111111/1r1111B1/11111111/1R111111/11111111/11111111 w KQkq"  # test 1
-    STARTING_FEN = "11111111/11111N11/11111111/111b1111/11111111/1N111111/11P11111/11111111 w KQkq"  # test 2
-    STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"  # starting pos
     STARTING_FEN = "11111N11/1111P1b1/p1111N11/11111111/11111111/11111111/11111111/11111111 w KQkq"  # test 4
+    STARTING_FEN = "11111111/11111111/11111111/1r1111B1/11111111/1R111111/11111111/11111111 w KQkq"  # test 1
     STARTING_FEN = "1p111111/11111N11/111111P1/111b1111/11111111/1N111111/11111111/11111111 w KQkq"  # test 3
+    STARTING_FEN = "1p111111/11111N11/11111111/111b1111/11111111/1N111111/11P11111/11111111 w KQkq"  # test 2
+    STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"  # starting pos
+    STARTING_FEN = "1nbqnbr1/11ppp1p1/11111111/11111111/11111111/11111111/11PPP1P1/1NBQNBR1 w KQkq"  # simple start
 
     is_valid_fen(STARTING_FEN)
     active_FEN = STARTING_FEN
@@ -303,7 +304,7 @@ def game(screen):
 
                                     """ evaluate new FEN """
                                     now = time.time()
-                                    active_FEN, evaluation = minimax(active_FEN, tile_group, 2, True)
+                                    active_FEN, evaluation = alphabeta(active_FEN, tile_group, 2, True, -999, 999)
                                     print(time.time() - now)
 
                                     piece_group = instasiate_pieces(active_FEN)
