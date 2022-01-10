@@ -138,6 +138,9 @@ all_black = {
 
     "BORDER": (0, 0, 0),
 
+    "LEGAL_MOVE": (0, 0, 0),
+    "CAPTURE_SQUARE": (0, 0, 0),
+
     "MAXIMISER": (0, 0, 0),
     "MINIMISER": (0, 0, 0),
 

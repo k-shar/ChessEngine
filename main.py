@@ -310,7 +310,7 @@ def game(screen):
                                     """ evaluate new FEN """
                                     if do_engine:
                                         now = time.time()
-                                        active_FEN, evaluation = alphabeta(active_FEN, tile_group, 2, True, -999, 999)
+                                        active_FEN, evaluation = alphabeta(active_FEN, tile_group, 2, True, -999, 999, 0)
                                         time_to_move = time.time() - now
                                         print(time_to_move)
 

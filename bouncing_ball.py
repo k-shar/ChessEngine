@@ -4,9 +4,9 @@ import random
 
 class Bouncy():
     def __init__(self, screen_size, loc):
-
-        self.vx = random.randint(-5, 5)
-        self.vy = random.randint(-5, 5)
+        speed = 5
+        self.vx = random.randint(-speed, speed)
+        self.vy = random.randint(-speed, speed)
 
         self.image = pygame.Surface([screen_size[0]//40] * 2)
         self.image.set_colorkey((0, 0, 0))

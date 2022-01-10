@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from engine_config import piece_values
 from pieces import Pawn, Rook, Knight, Bishop, Queen, King
 from fen_manipulation import instasiate_pieces, make_move_on_FEN
+from threading import Thread
 
 
 def normalise_evaluation(eval):
@@ -61,14 +62,14 @@ def static_evaluation(piece_group):
     return round(evaluation, 4)
 
 
-def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
+def alphabeta(FEN, tile_group, depth, maximising, alpha, beta, count):
     piece_group = instasiate_pieces(FEN)
 
     if depth == 0:  # TODO: add game over
         for piece in piece_group:
             piece.set_location_evaluation(tile_group)  # update its location evaluation
 
-        return FEN, static_evaluation(piece_group)
+        return FEN, static_evaluation(piece_group), count
 
     if maximising:
         best_move = None
@@ -88,7 +89,8 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
                         new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
 
                         # evaluate move
-                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, False, alpha, beta)[1]
+                        _, current_move_evaluation, count = alphabeta(new_fen, tile_group, depth - 1, False, alpha, beta, count + 1)
+
                         # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
 
                         if current_move_evaluation > best_evaluation:
@@ -100,7 +102,7 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
                         if best_evaluation >= beta:
                             break
 
-        return best_move[0], best_evaluation
+        return best_move[0], best_evaluation, count
 
     # minimising case
     else:
@@ -122,7 +124,8 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
                         new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
 
                         # evaluate move
-                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, True, alpha, beta)[1]
+                        _, current_move_evaluation, count = alphabeta(new_fen, tile_group, depth - 1, True, alpha, beta, count + 1)
+
 
                         # print(move, piece_group[i], current_move_evaluation, depth)
                         # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
@@ -136,7 +139,7 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
                             break
 
 
-        return best_move[0], best_evaluation
+        return best_move[0], best_evaluation, count
 
 
 if __name__ == "__main__":
