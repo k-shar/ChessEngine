@@ -43,6 +43,8 @@ def relative_piece_sum(piece_group):
             evaluation += polarity * piece_values["bishop"]
         elif type(piece) is Queen:
             evaluation += polarity * piece_values["queen"]
+        elif type(piece) is King:
+            evaluation += polarity * piece_values["king"]
 
     return evaluation
 
