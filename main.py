@@ -42,9 +42,9 @@ def game(screen):
     STARTING_FEN = "11111N11/1111P1b1/p1111N11/11111111/11111111/11111111/11111111/11111111 w KQkq"  # test 4
     STARTING_FEN = "11111111/11111111/11111111/1r1111B1/11111111/1R111111/11111111/11111111 w KQkq"  # test 1
     STARTING_FEN = "1p111111/11111N11/111111P1/111b1111/11111111/1N111111/11111111/11111111 w KQkq"  # test 3
-    STARTING_FEN = "1p111111/11111N11/11111111/111b1111/11111111/1N111111/11P11111/11111111 w KQkq"  # test 2
     STARTING_FEN = "1nbqnbr1/11ppp1p1/11111111/11111111/11111111/11111111/11PPP1P1/1NBQNBR1 w KQkq"  # simple start
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"  # starting pos
+    STARTING_FEN = "1p111111/11111N11/11111111/111b1111/11111111/1N111111/11P11111/11111111 w KQkq"  # test 2
 
     is_valid_fen(STARTING_FEN)
     active_FEN = STARTING_FEN
@@ -310,7 +310,7 @@ def game(screen):
                                     """ evaluate new FEN """
                                     if do_engine:
                                         now = time.time()
-                                        active_FEN, evaluation = alphabeta(active_FEN, tile_group, 2, True, -999, 999, 0)
+                                        active_FEN, evaluation = alphabeta(active_FEN, tile_group, 2, True, -999, 999)
                                         time_to_move = time.time() - now
                                         print(time_to_move)
 
@@ -525,7 +525,6 @@ def game(screen):
             # mouse pointer
             window.image.blit(mouse_pointer, [pygame.mouse.get_pos()[0] - window_offset[0] - mouse_pointer_size//2,
                                               pygame.mouse.get_pos()[1] - window_offset[1] - mouse_pointer_size//2])
-
 
         fps_counter.draw_text(f"{str(clock.get_fps())[:4]} fps")
         window.image.blit(fps_counter.image, fps_counter.rect)

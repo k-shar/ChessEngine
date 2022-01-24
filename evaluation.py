@@ -62,14 +62,14 @@ def static_evaluation(piece_group):
     return round(evaluation, 4)
 
 
-def alphabeta(FEN, tile_group, depth, maximising, alpha, beta, count):
+def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
     piece_group = instasiate_pieces(FEN)
 
     if depth == 0:  # TODO: add game over
         for piece in piece_group:
             piece.set_location_evaluation(tile_group)  # update its location evaluation
 
-        return FEN, static_evaluation(piece_group), count
+        return FEN, static_evaluation(piece_group)
 
     if maximising:
         best_move = None
@@ -89,7 +89,7 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta, count):
                         new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
 
                         # evaluate move
-                        _, current_move_evaluation, count = alphabeta(new_fen, tile_group, depth - 1, False, alpha, beta, count + 1)
+                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, False, alpha, beta)[1]
 
                         # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
 
@@ -102,7 +102,7 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta, count):
                         if best_evaluation >= beta:
                             break
 
-        return best_move[0], best_evaluation, count
+        return best_move[0], best_evaluation
 
     # minimising case
     else:
@@ -124,7 +124,7 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta, count):
                         new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
 
                         # evaluate move
-                        _, current_move_evaluation, count = alphabeta(new_fen, tile_group, depth - 1, True, alpha, beta, count + 1)
+                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, True, alpha, beta)[1]
 
 
                         # print(move, piece_group[i], current_move_evaluation, depth)
@@ -139,7 +139,7 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta, count):
                             break
 
 
-        return best_move[0], best_evaluation, count
+        return best_move[0], best_evaluation
 
 
 if __name__ == "__main__":
