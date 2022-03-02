@@ -52,9 +52,10 @@ class ScaleSurface(pygame.sprite.Sprite):
 
 
 class TextSurface(ScaleSurface):
-    def __init__(self, color, ratio, alignment, padding, text, text_size, text_color, text_loc):
+    def __init__(self, color, ratio, alignment, padding, text, text_size, text_color, text_loc, underline=False):
         super().__init__(color, ratio, alignment, padding)
 
+        self.underline = underline
         self.text_color = engine_config.default_theme[text_color]
         self.active_text = text
         self.text_size = text_size
@@ -73,9 +74,11 @@ class TextSurface(ScaleSurface):
         self.draw_text(self.active_text)
 
     def draw_text(self, text):
-        super().setcolor(self.color)
+        if self.active_text != "Color Themes":  # TODO: fix this bodge
+            super().setcolor(self.color)
         # create font
         font = pygame.freetype.SysFont("Consolas", self.image.get_height())
+        font.underline = self.underline
         # set height of text, special case for (0, 0) as text size must be non zero
         size = 1 if self.image.get_size() == (0, 0) else self.image.get_height() * self.text_size
         # render font
@@ -144,13 +147,13 @@ class ColorThemeButton(Button):
 
 
 class HintsToggle(Button):
-    def __init__(self, alignment, text):
-        super().__init__("BUTTON", (5, 1), alignment, 0.9, text, 0.6)
+    def __init__(self, alignment, text, size=0.6, aspect=(7, 1), scale_down=0.95, checkbox_size=0.75, checkbox_pos=(0.88, 0.5)):
+        super().__init__("BUTTON", aspect, alignment, scale_down, text, size)
 
         self.color = engine_config.blue_theme["BUTTON"]
-        self.text_color = engine_config.blue_theme["TEXT"]
+        self.text_color = (0, 0, 0)
 
-        self.checkbox = Button("BORDER", (1, 1), (0.9, 0.5), 0.7, "x", 0.9)
+        self.checkbox = Button("BORDER", (2, 1), checkbox_pos, checkbox_size, "x", 0.9)
         self.parent = None
 
         self.is_clicked = False

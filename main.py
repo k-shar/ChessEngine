@@ -13,9 +13,9 @@ import time
 
 
 def game(screen):
-    pygame.display.set_caption("Iteration 2.2 chess engine")
+    pygame.display.set_caption("Iteration 2.3 chess engine")
     clock = pygame.time.Clock()
-    # pygame.mouse.set_visible(False)
+    pygame.mouse.set_visible(False)
 
     do_engine = True
     active_piece = None
@@ -28,6 +28,7 @@ def game(screen):
     time_to_move = 0
     evaluation = 0
     evaluation_transition = [evaluation]
+
 
     # STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/1111R111/11111111/11111r11/PPPPPPPP/RNBQKBNR w KQkq"
@@ -52,7 +53,7 @@ def game(screen):
     """ Initialise Surfaces """
     window = ScaleSurface("WINDOW", (16, 9), (0.5, 0.5), 1)
 
-    fps_counter = TextSurface("BORDER", (4, 1), (0.9, 0.05), 0.15, "0.0", 0.6, "TEXT", (1, 1))
+    fps_counter = TextSurface("BORDER", (5, 1), (0.9, 0.04), 0.15, "0.0", 0.6, "WHITE", (1, 1))
 
     # -- chess board and border --
     chess_board_border = ScaleSurface("BORDER", (1, 1), (0.35, 0.5), 0.9)
@@ -67,19 +68,22 @@ def game(screen):
 
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
-    text_output = TextSurface("TEXT_OUTPUT", (7, 2), (0.5, 0.13), 0.93, "win/ lose", 0.4, "TEXT", (1, 1))
+    text_output = TextSurface("TEXT_OUTPUT", (4, 1), (0.5, 0.1), 0.96, "win/ lose", 0.4, "TEXT", (1, 1))
 
-    coordinates = HintsToggle((0.5, 0.3), "coordinates   ")
-    hint_move = HintsToggle((0.5, 0.44), "move hints   ")
-    hint_engine = HintsToggle((0.5, 0.58), "show engine   ")
-    reset_board = ResetButton("BORDER", (7, 1), (0.5, 0.92), 0.93, "~ reset board ~", 0.6)
+    coordinates = HintsToggle((0.5, 0.52), "coordinates   ")
+    show_legal_moves = HintsToggle((0.5, 0.62), "show legal moves    ", 0.45)
+
+    engine_config_ui = TextSurface("TEXT_OUTPUT", (5, 2), (0.5, 0.33), 0.95, "Engines move:", 0.2, "TEXT", (0.6, 0.3), underline=True)
+    quick_move = ResetButton("BUTTON", (5, 4), (0.4, 0.4), 0.9, "quick search", 0.2)
+
+    reset_board = ResetButton("BORDER", (7, 1), (0.5, 0.94), 0.93, "~ reset board ~", 0.6)
 
     # -- color theme selection --
-    color_theme_label = TextSurface("TEXT_OUTPUT", (7, 1), (0.5, 0.71), 0.93, "Color Themes", 0.6, "TEXT", (1, 1))
-    blue = ColorThemeButton((0.15, 0.81), "blue", blue_theme)
-    purple = ColorThemeButton((0.381, 0.81), "purple", purple_theme)
-    multi = ColorThemeButton((0.61, 0.81), "multi", all_black)
-    green = ColorThemeButton((0.85, 0.81), "green", green_theme)
+    color_theme_label = TextSurface("TEXT_OUTPUT", (3, 1), (0.5, 0.79), 0.95, "Color Themes", 0.3, "TEXT", (1, 0.5))
+    blue = ColorThemeButton((0.15, 0.84), "blue", blue_theme)
+    purple = ColorThemeButton((0.381, 0.84), "purple", purple_theme)
+    multi = ColorThemeButton((0.61, 0.84), "multi", all_black)
+    green = ColorThemeButton((0.85, 0.84), "green", green_theme)
 
     # -- initialise mouse pointer --
     mouse_pointer = pygame.Surface([1, 1])
@@ -99,14 +103,16 @@ def game(screen):
 
     # -- surface groups --
     scale_surf_group = [window, chess_board, chess_board_border, options_border, reset_board]
-    hint_toggle_group = [hint_move, hint_engine, coordinates]
-    static_surf_group = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser, eval_label, eval_label_border]
+    hint_toggle_group = [show_legal_moves, coordinates]
+    static_surf_group = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser, eval_label, eval_label_border, engine_config_ui]
     color_theme_button_group = [blue, purple, multi, green]
     all_surfaces_group = scale_surf_group + hint_toggle_group + static_surf_group + color_theme_button_group + tile_group
 
     """ Color creation """
     # set default color theme
     current_color_theme = blue.click(True)
+
+    show_legal_moves.click(True)
 
     # -- generate array of rainbow colors --
     frame = 0
@@ -126,6 +132,8 @@ def game(screen):
             frame = 0
 
         # -- rainbow spectrum multi color mode --
+        color_theme_label.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 3])
+        color_theme_label.draw_text(color_theme_label.active_text)
         if multi.clicked:
             chess_board_border.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 3])
             options_border.image.fill(color_spectrum[frame])
@@ -216,6 +224,7 @@ def game(screen):
                 # - options menu -
                 options_border.resize(window.image)
                 text_output.resize(options_border.image)
+                engine_config_ui.resize(options_border.image)
 
                 # hint buttons
                 for surf in hint_toggle_group:
@@ -226,6 +235,9 @@ def game(screen):
                 color_theme_label.resize(options_border.image)
                 for surf in color_theme_button_group:
                     surf.resize(options_border.image)
+
+                # engine move
+                quick_move.resize(engine_config_ui.image)
 
                 # resize button
                 reset_board.resize(options_border.image)
@@ -469,9 +481,12 @@ def game(screen):
                 options_border.image.blit(surf.image, surf.rect)
             options_border.image.blit(reset_board.image, reset_board.rect)
 
+            engine_config_ui.image.blit(quick_move.image, quick_move.rect)
+
             # text output
-            text_output.draw_text(str(round(time_to_move, 4)))
+            # text_output.draw_text(str(round(time_to_move, 4)))
             options_border.image.blit(text_output.image, text_output.rect)
+            options_border.image.blit(engine_config_ui.image, engine_config_ui.rect)
             window.image.blit(options_border.image, options_border.rect)
 
             # evaluation bar
@@ -487,11 +502,12 @@ def game(screen):
 
                     tile_group[tile_index].is_legal_move = True
                     # draw dot on legal move square
-                    pygame.draw.ellipse(tile_group[tile_index].image, current_color_theme["LEGAL_MOVE"],
-                                        [tile_group[tile_index].image.get_height() // 4,
-                                         tile_group[tile_index].image.get_width() // 4,
-                                         tile_group[tile_index].image.get_height() // 2,
-                                         tile_group[tile_index].image.get_width() // 2])
+                    if show_legal_moves.is_clicked:
+                        pygame.draw.ellipse(tile_group[tile_index].image, current_color_theme["LEGAL_MOVE"],
+                                            [tile_group[tile_index].image.get_height() // 4,
+                                             tile_group[tile_index].image.get_width() // 4,
+                                             tile_group[tile_index].image.get_height() // 2,
+                                             tile_group[tile_index].image.get_width() // 2])
 
             # pieces
             for piece in piece_group:

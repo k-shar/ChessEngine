@@ -167,6 +167,7 @@ class Pawn(Piece):
             self.location_evaluation = pawn_square_table[coord[1]-1][coord[0]-1]
         else:
             self.location_evaluation = pawn_square_table[8 - coord[1]][coord[0] - 1]
+        self.location_evaluation *= 2
 
     def generate_legal_moves(self, tile_group, piece_group):
         pieces_on_these_indices = []

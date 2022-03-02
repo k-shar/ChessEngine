@@ -1,8 +1,8 @@
 # config
 RAINBOW_MOUSE = True
-MOUSE_TRAIL = False
-RAINBOW_COLOR_SPECTRUM_SIZE = 300
-FADE_DURATION = 15
+MOUSE_TRAIL = True
+RAINBOW_COLOR_SPECTRUM_SIZE = 200
+FADE_DURATION = 5
 
 """ relative piece conversions """
 piece_values = {
