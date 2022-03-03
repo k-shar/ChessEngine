@@ -74,7 +74,7 @@ class TextSurface(ScaleSurface):
         self.draw_text(self.active_text)
 
     def draw_text(self, text):
-        if self.active_text != "Color Themes":  # TODO: fix this bodge
+        if (self.active_text != "Colour Themes") and ("." not in text) or ("fps" in text):  # TODO: fix this bodge
             super().setcolor(self.color)
         # create font
         font = pygame.freetype.SysFont("Consolas", self.image.get_height())
@@ -127,8 +127,8 @@ class ResetButton(Button):
 
 
 class ColorThemeButton(Button):
-    def __init__(self, alignment, button_name, color_theme):
-        super().__init__("BUTTON", (5, 3), alignment, 0.22, button_name, 0.4)
+    def __init__(self, alignment, button_name, color_theme, ratio=(5,3), scale=0.22, text_scale=0.4):
+        super().__init__("BUTTON", ratio, alignment, scale, button_name, text_scale)
 
         self.color_theme = color_theme
         self.button_name = button_name  # primary text
@@ -144,6 +144,11 @@ class ColorThemeButton(Button):
             self.text_size = 0.4
         super().click(clicked)
         return self.color_theme
+
+
+class EngineConfigButton(ColorThemeButton):
+    def __init__(self, ratio, alignment, scale, button_name, text_scale):
+        super().__init__(alignment, button_name, "blue", ratio=ratio, scale=scale, text_scale=text_scale)
 
 
 class HintsToggle(Button):

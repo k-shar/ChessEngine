@@ -1,7 +1,7 @@
 # -- imports --
 import pygame
 from engine_config import *
-from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton, EvaluationSlider, EvaluationTextSlider
+from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsToggle, ResetButton, EvaluationSlider, EvaluationTextSlider, EngineConfigButton
 from tiles import Tile
 from pieces import *
 from fen_manipulation import is_valid_fen, make_move_on_FEN, instasiate_pieces
@@ -9,6 +9,7 @@ from evaluation import generate_evaluation_spectrum, alphabeta, static_evaluatio
 import colors
 import random
 from bouncing_ball import Bouncy
+from generate_positions import puzzles
 import time
 
 
@@ -39,12 +40,6 @@ def game(screen):
     STARTING_FEN = "11111n1N/11N111n1/11r11111/11Q11pp1/111n1111/111N1111/1p1n1PPP/111111Nn w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
-    STARTING_FEN = "11111111/11111111/11111111/1r1111B1/11111111/1R111111/11111111/11111111 w KQkq"  # test 1
-    STARTING_FEN = "1p111111/11111N11/11111111/111b1111/11111111/1N111111/11P11111/11111111 w KQkq"  # test 2
-    STARTING_FEN = "1p111111/11111N11/111111P1/111b1111/11111111/1N111111/11111111/11111111 w KQkq"  # test 3
-    STARTING_FEN = "11111N11/1111P1b1/p1111N11/11111111/11111111/11111111/11111111/11111111 w KQkq"  # test 4
-    STARTING_FEN = "1111p111/111111P1/1B11Qqn1/1N11R11k/1K1b111N/n1111r11/b111B111/11Q111q1 w KQkq"
-    STARTING_FEN = "1nbqnbr1/11ppp1p1/11111111/11111111/11111111/11111111/11PPP1P1/1NBQNBR1 w KQkq"  # simple start
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"  # starting pos
 
     is_valid_fen(STARTING_FEN)
@@ -61,10 +56,11 @@ def game(screen):
 
     # -- evaluation bar --
     eval_bar_border = ScaleSurface("WINDOW", (1, 10), (0.045, 0.5), 0.95)
+    eval_bar_border.image.set_colorkey((23, 89, 101))
     eval_maximiser = EvaluationSlider("BLACK", True)
     eval_minimiser = EvaluationSlider("WHITE", False)
     eval_label_border = EvaluationTextSlider("BORDER", (5, 3), (0.5, 0.5), 1, "0.0", 0.5, "WHITE", (1, 1))
-    eval_label = TextSurface("TEXT_OUTPUT", (5, 3), (0.5, 0.5), 0.9, "0.0", 0.5, "BORDER", (1, 1))
+    eval_label = TextSurface("TEXT_OUTPUT", (5, 3), (0.5, 0.5), 0.9, "__", 0.5, "BORDER", (1, 1))
 
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
@@ -73,13 +69,15 @@ def game(screen):
     coordinates = HintsToggle((0.5, 0.52), "coordinates   ")
     show_legal_moves = HintsToggle((0.5, 0.62), "show legal moves    ", 0.45)
 
-    engine_config_ui = TextSurface("TEXT_OUTPUT", (5, 2), (0.5, 0.33), 0.95, "Engines move:", 0.2, "TEXT", (0.6, 0.3), underline=True)
-    quick_move = ResetButton("BUTTON", (5, 4), (0.4, 0.4), 0.9, "quick search", 0.2)
+    engine_config_ui = TextSurface("TEXT_OUTPUT", (5, 2), (0.5, 0.33), 0.95, "Generate position:", 0.2, "TEXT", (0.83, 0.3), underline=True)
+    puzzle = EngineConfigButton((1, 1), (0.23, 1.44), 0.65, "puzzle", 0.25)
+    endgame = EngineConfigButton((1, 1), (0.53, 1.44), 0.65, "endgame", 0.25)
+    random_pos = EngineConfigButton((1, 1), (0.83, 1.44), 0.65, "random", 0.25)
 
     reset_board = ResetButton("BORDER", (7, 1), (0.5, 0.94), 0.93, "~ reset board ~", 0.6)
 
     # -- color theme selection --
-    color_theme_label = TextSurface("TEXT_OUTPUT", (3, 1), (0.5, 0.79), 0.95, "Color Themes", 0.3, "TEXT", (1, 0.5))
+    color_theme_label = TextSurface("TEXT_OUTPUT", (3, 1), (0.5, 0.79), 0.95, "Colour Themes", 0.3, "TEXT", (1, 0.5))
     blue = ColorThemeButton((0.15, 0.84), "blue", blue_theme)
     purple = ColorThemeButton((0.381, 0.84), "purple", purple_theme)
     multi = ColorThemeButton((0.61, 0.84), "multi", all_black)
@@ -104,8 +102,9 @@ def game(screen):
     # -- surface groups --
     scale_surf_group = [window, chess_board, chess_board_border, options_border, reset_board]
     hint_toggle_group = [show_legal_moves, coordinates]
-    static_surf_group = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser, eval_label, eval_label_border, engine_config_ui]
+    static_surf_group = [text_output, color_theme_label, eval_bar_border, eval_minimiser, eval_maximiser, eval_label, eval_label_border]
     color_theme_button_group = [blue, purple, multi, green]
+    engine_config_button_group = [puzzle, endgame, random_pos]
     all_surfaces_group = scale_surf_group + hint_toggle_group + static_surf_group + color_theme_button_group + tile_group
 
     """ Color creation """
@@ -134,6 +133,8 @@ def game(screen):
         # -- rainbow spectrum multi color mode --
         color_theme_label.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 3])
         color_theme_label.draw_text(color_theme_label.active_text)
+
+
         if multi.clicked:
             chess_board_border.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 3])
             options_border.image.fill(color_spectrum[frame])
@@ -177,10 +178,13 @@ def game(screen):
             eval_maximiser.resize(eval_bar_border.image)
             eval_minimiser.resize(eval_bar_border.image)
             eval_label_border.resize(eval_bar_border.image)
+
             if multi.clicked:
                 eval_bar_border.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 2])
                 eval_label_border.image.fill(color_spectrum[frame])
+            eval_label.image.fill(color_spectrum[frame + RAINBOW_COLOR_SPECTRUM_SIZE // 3])
             eval_label.draw_text(f"{float(str(evaluation_transition[-1])[:4]):.2f}")
+            eval_label.active_text = f"{float(str(evaluation_transition[-1])[:4]):.2f}"
             eval_label_border.image.blit(eval_label.image, eval_label.rect)
 
             evaluation_transition.pop()
@@ -219,7 +223,6 @@ def game(screen):
                 eval_minimiser.resize(eval_bar_border.image)
                 eval_label_border.resize(eval_bar_border.image)
                 eval_label.resize(eval_label_border.image)
-                eval_label.draw_text(eval_label.active_text)
 
                 # - options menu -
                 options_border.resize(window.image)
@@ -237,7 +240,9 @@ def game(screen):
                     surf.resize(options_border.image)
 
                 # engine move
-                quick_move.resize(engine_config_ui.image)
+                puzzle.resize(engine_config_ui.image)
+                endgame.resize(engine_config_ui.image)
+                random_pos.resize(engine_config_ui.image)
 
                 # resize button
                 reset_board.resize(options_border.image)
@@ -332,6 +337,7 @@ def game(screen):
                                     else:
                                         evaluation = static_evaluation(piece_group)
                                     # update the slider
+                                    # eval_label.active_text = str(evaluation)
                                     if len(evaluation_transition) > 0:
                                         evaluation_transition = generate_evaluation_spectrum(evaluation_transition[-1], evaluation)
                                     else:
@@ -367,6 +373,40 @@ def game(screen):
                     else:
                         hint_button.hover(False)
 
+                """ engine config button hover """
+                for engine_config_button in engine_config_button_group:
+
+                    # -- apply hover effect --
+                    if engine_config_button.rect.colliderect(mouse_pointer_rect):
+                        engine_config_button.hover(True)
+
+                        """ on click """
+                        if event.type == pygame.MOUSEBUTTONUP:
+                            if engine_config_button.active_text == "puzzle":
+                                active_FEN = random.choice(puzzles)
+
+                            # clear all tiles to remove old piece sprites
+                            for tile in tile_group:
+                                tile.image.fill(tile.color)
+
+                            piece_group = instasiate_pieces(active_FEN)
+                            for piece in piece_group:
+                                piece.resize(tile_group[piece.tile_index].image.get_rect().size, 1)
+
+                            # evaluate
+                            evaluation = static_evaluation(piece_group)
+
+                            # update the slider
+                            if len(evaluation_transition) > 0:
+                                evaluation_transition = generate_evaluation_spectrum(evaluation_transition[-1],
+                                                                                     evaluation)
+                            else:
+                                evaluation_transition = generate_evaluation_spectrum(eval_minimiser.slide,
+                                                                                     evaluation)
+
+                    else:
+                        engine_config_button.hover(False)
+
                 """ color theme button hover """
                 for theme_button in color_theme_button_group:
 
@@ -395,6 +435,7 @@ def game(screen):
                                 tile.color_set = current_color_theme
                                 tile.setcolor(None)
 
+                            eval_bar_border.image.set_colorkey(current_color_theme["WINDOW"])
                             # -- create color fade spectrum --
                             fade_spectrum_3d = []
                             for surf in all_surfaces_group:
@@ -481,12 +522,14 @@ def game(screen):
                 options_border.image.blit(surf.image, surf.rect)
             options_border.image.blit(reset_board.image, reset_board.rect)
 
-            engine_config_ui.image.blit(quick_move.image, quick_move.rect)
 
             # text output
             # text_output.draw_text(str(round(time_to_move, 4)))
             options_border.image.blit(text_output.image, text_output.rect)
             options_border.image.blit(engine_config_ui.image, engine_config_ui.rect)
+            options_border.image.blit(puzzle.image, puzzle.rect)
+            options_border.image.blit(endgame.image, endgame.rect)
+            options_border.image.blit(random_pos.image, random_pos.rect)
             window.image.blit(options_border.image, options_border.rect)
 
             # evaluation bar
@@ -554,7 +597,6 @@ def game(screen):
 
         clock.tick(60)
         pygame.display.update()
-
 
 if __name__ == "__main__":
     pygame.display.init()
