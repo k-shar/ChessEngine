@@ -383,10 +383,11 @@ def game(screen):
 
                         """ on click """
                         if event.type == pygame.MOUSEBUTTONUP:
-                            if engine_config_button.active_text == "puzzle":
-                                active_FEN = random.choice(puzzles)
-                            if engine_config_button.active_text == "endgame":
-                                active_FEN = random.choice(endgames)
+                            if active_piece is None:
+                                if engine_config_button.active_text == "puzzle":
+                                    active_FEN = random.choice(puzzles)
+                                if engine_config_button.active_text == "endgame":
+                                    active_FEN = random.choice(endgames)
 
                             # clear all tiles to remove old piece sprites
                             for tile in tile_group:
