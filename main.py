@@ -9,15 +9,17 @@ from evaluation import generate_evaluation_spectrum, alphabeta, static_evaluatio
 import colors
 import random
 from bouncing_ball import Bouncy
-from generate_positions import puzzles, endgames
+from generate_positions import puzzles, endgames, generate_random_fen
 import time
 
 
 def game(screen):
     pygame.display.set_caption("Epic chess engine")
+    img = pygame.image.load("img/black_knight.svg")
+    pygame.display.set_icon(img)
     clock = pygame.time.Clock()
     pygame.mouse.set_visible(False)
-
+    cat = pygame.image.load("cats.png")
     do_engine = True
     active_piece = None
     show_ui = True
@@ -254,6 +256,7 @@ def game(screen):
                                       chess_board.rect.topleft[1] + chess_board_border.rect.topleft[1] + window_offset[1]]
 
 
+
             """ - hover or click events - """
             if (event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEBUTTONUP) and fade_indexer <= 0:
                 # -- set mouse_pointer offsets and rect --
@@ -328,7 +331,38 @@ def game(screen):
                                     """ evaluate new FEN """
                                     if do_engine:
                                         now = time.time()
-                                        active_FEN, evaluation = alphabeta(active_FEN, tile_group, 2, True, -999, 999)
+
+                                        #dispay disclamer
+                                        window.image.fill((255,255,255))
+                                        screen.fill((255,255,255))
+
+                                        # create balls
+                                        for i in range(50):
+                                            balls.append(Bouncy(screen.get_size(),
+                                                                (screen.get_width() // 2, screen.get_height() // 2)))
+                                        for i in range(120):
+                                            if len(balls) > 0:
+                                                # draw ball
+                                                frame += 1
+                                                for ball in balls:
+                                                    pygame.draw.circle(ball.image, color_spectrum[frame],
+                                                                       (mouse_pointer_size // 2,
+                                                                        mouse_pointer_size // 2),
+                                                                       mouse_pointer_size // 2)
+                                                    ball.update(window.image.get_size())
+
+                                                    window.image.blit(ball.image, ball.rect)
+                                            screen.blit(window.image, window.rect)
+                                            pygame.display.flip()
+                                            clock.tick(60)
+
+                                            catimg = pygame.transform.scale(cat, (chess_board.rect.height * 0.9, chess_board.rect.height * 0.9))
+                                            window.image.blit(chess_board.image, chess_board.rect)
+                                            window.image.blit(catimg, (chess_board.rect.height * 0.9, chess_board.rect.height * 0.05))
+                                            screen.blit(window.image, window.rect)
+                                            pygame.display.flip()
+
+                                        active_FEN, evaluation = alphabeta(active_FEN, tile_group, 3, True, -999, 999)
                                         time_to_move = time.time() - now
                                         print(time_to_move)
 
@@ -388,6 +422,8 @@ def game(screen):
                                     active_FEN = random.choice(puzzles)
                                 if engine_config_button.active_text == "endgame":
                                     active_FEN = random.choice(endgames)
+                                if engine_config_button.active_text == "random":
+                                    active_FEN = generate_random_fen()
 
                             # clear all tiles to remove old piece sprites
                             for tile in tile_group:
@@ -582,6 +618,8 @@ def game(screen):
 
 
             # chess board
+            # catimg = pygame.transform.scale(cat, (chess_board.rect.height * 0.9, chess_board.rect.height * 0.9))
+            # chess_board.image.blit(catimg, (chess_board.rect.height * 0.05, chess_board.rect.height * 0.05))
             chess_board_border.image.blit(chess_board.image, chess_board.rect)
             window.image.blit(chess_board_border.image, chess_board_border.rect)
 
@@ -598,6 +636,7 @@ def game(screen):
         if active_piece is not None:
             screen.blit(active_piece.image, [pygame.mouse.get_pos()[0] - active_piece.rect.width // 2,
                                              pygame.mouse.get_pos()[1] - active_piece.rect.height // 2])
+
 
         clock.tick(60)
         pygame.display.update()

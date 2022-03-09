@@ -91,8 +91,8 @@ class TextSurface(ScaleSurface):
 
 
 class Button(TextSurface):
-    def __init__(self, color, ratio, alignment, padding, text, text_size):
-        super().__init__(color, ratio, alignment, padding, text, text_size, "TEXT", (1, 1))
+    def __init__(self, color, ratio, alignment, padding, text, text_size, text_col="TEXT"):
+        super().__init__(color, ratio, alignment, padding, text, text_size, text_col, (1, 1))
         self.hovered, self.clicked = False, False
 
     def hover(self, is_hovered):
@@ -127,8 +127,8 @@ class ResetButton(Button):
 
 
 class ColorThemeButton(Button):
-    def __init__(self, alignment, button_name, color_theme, ratio=(5,3), scale=0.22, text_scale=0.4):
-        super().__init__("BUTTON", ratio, alignment, scale, button_name, text_scale)
+    def __init__(self, alignment, button_name, color_theme, ratio=(5, 3), scale=0.22, text_scale=0.4, text_col="TEXT"):
+        super().__init__("BUTTON", ratio, alignment, scale, button_name, text_scale, text_col)
 
         self.color_theme = color_theme
         self.button_name = button_name  # primary text
@@ -148,7 +148,7 @@ class ColorThemeButton(Button):
 
 class EngineConfigButton(ColorThemeButton):
     def __init__(self, ratio, alignment, scale, button_name, text_scale):
-        super().__init__(alignment, button_name, "blue", ratio=ratio, scale=scale, text_scale=text_scale)
+        super().__init__(alignment, button_name, "blue", ratio=ratio, scale=scale, text_scale=text_scale, text_col="BORDER")
 
 
 class HintsToggle(Button):

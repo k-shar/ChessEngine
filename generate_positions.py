@@ -21,3 +21,39 @@ endgames = [
     "111k1111/1k111111/11111111/B1111111/11111111/11111111/111KR111/11111111 w KQkq",
     "111111k1/11111111/111111b1/11111111/11111111/111111R1/111Kn111/11111111 w KQkq",
     ]
+
+def generate_random_fen():
+    fen = []
+    for row in range(8):
+        row = ""
+        for column in range(8):
+            if random.randint(1, 10) == 3:
+                row += random.choice(["r", "R", "N", "N", "P", "p", "B", "b"])
+            else:
+                row += "1"
+        fen.append(row)
+
+    # add kings
+    white_king_riow = ""
+    for column in range(8):
+        if random.randint(1, 10) == 3:
+            white_king_riow += random.choice(["r", "R", "N", "N", "P", "p", "B", "b"])
+        else:
+            white_king_riow += "1"
+    white_king_riow = list(white_king_riow)
+    white_king_riow[random.randint(0, 7)] = "k"
+    white_king_riow = "".join(white_king_riow)
+    fen[random.randint(0, 3)] = white_king_riow
+
+    black_king_row = ""
+    for column in range(8):
+        if random.randint(1, 10) == 3:
+            black_king_row += random.choice(["r", "R", "N", "N", "P", "p", "B", "b"])
+        else:
+            black_king_row += "1"
+    black_king_row = list(black_king_row)
+    black_king_row[random.randint(0, 7)] = "K"
+    black_king_row = "".join(black_king_row)
+    fen[random.randint(4, 7)] = black_king_row
+
+    return "/".join(fen) + " w KQkq"

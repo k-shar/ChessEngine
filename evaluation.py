@@ -103,7 +103,8 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
                         alpha = max(alpha, best_evaluation)
                         if best_evaluation >= beta:
                             break
-
+        if best_move is None:
+            print(best_evaluation, current_move_evaluation)
         return best_move[0], best_evaluation
 
     # minimising case
