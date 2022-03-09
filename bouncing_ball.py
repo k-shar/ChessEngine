@@ -15,8 +15,8 @@ class Bouncy():
         self.rect.center = loc
 
     def update(self, size):
-        self.rect.centerx += self.vx + random.randint(-1, 1)
-        self.rect.centery += self.vy + random.randint(-1, 1)
+        self.rect.centerx += self.vx + random.randint(-30, 30)
+        self.rect.centery += self.vy + random.randint(-30, 30)
 
         if self.rect.centerx >= size[0]:
             self.vx *= -1

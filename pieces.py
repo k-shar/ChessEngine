@@ -15,7 +15,7 @@ class Piece():
 
     def resize(self, rect, enlarge):
         self.parent = rect
-        self.image = pygame.transform.scale(self.file, (int(rect[0] * enlarge), int(rect[1] * enlarge)))
+        self.image = pygame.transform.smoothscale(self.file, (int(rect[0] * enlarge), int(rect[1] * enlarge)))
         self.rect = self.image.get_rect()
         self.rect.centerx = rect[0] // 2
         self.rect.centery = rect[1] // 2

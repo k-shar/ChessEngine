@@ -9,12 +9,12 @@ from evaluation import generate_evaluation_spectrum, alphabeta, static_evaluatio
 import colors
 import random
 from bouncing_ball import Bouncy
-from generate_positions import puzzles
+from generate_positions import puzzles, endgames
 import time
 
 
 def game(screen):
-    pygame.display.set_caption("Iteration 2.3 chess engine")
+    pygame.display.set_caption("Epic chess engine")
     clock = pygame.time.Clock()
     pygame.mouse.set_visible(False)
 
@@ -29,7 +29,7 @@ def game(screen):
     time_to_move = 0
     evaluation = 0
     evaluation_transition = [evaluation]
-
+    move_black = True
 
     # STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/1111R111/11111111/11111r11/PPPPPPPP/RNBQKBNR w KQkq"
@@ -64,7 +64,7 @@ def game(screen):
 
     # -- options menu --
     options_border = ScaleSurface("BORDER", (4, 6), (0.8, 0.5), 0.9)
-    text_output = TextSurface("TEXT_OUTPUT", (4, 1), (0.5, 0.1), 0.96, "win/ lose", 0.4, "TEXT", (1, 1))
+    text_output = TextSurface("TEXT_OUTPUT", (4, 1), (0.5, 0.1), 0.96, "chess", 0.4, "TEXT", (1, 1))
 
     coordinates = HintsToggle((0.5, 0.52), "coordinates   ")
     show_legal_moves = HintsToggle((0.5, 0.62), "show legal moves    ", 0.45)
@@ -278,9 +278,10 @@ def game(screen):
 
                             # if mouse is also clicked, select piece
                             if event.type == pygame.MOUSEBUTTONUP and active_piece is None:
-                                for other_piece in piece_group:
-                                    other_piece.selected = False
-                                piece.selected = True
+                                if not(move_black and piece.color == "black"):
+                                    for other_piece in piece_group:
+                                        other_piece.selected = False
+                                    piece.selected = True
 
                         else:
                             piece.hover(False)
@@ -384,6 +385,8 @@ def game(screen):
                         if event.type == pygame.MOUSEBUTTONUP:
                             if engine_config_button.active_text == "puzzle":
                                 active_FEN = random.choice(puzzles)
+                            if engine_config_button.active_text == "endgame":
+                                active_FEN = random.choice(endgames)
 
                             # clear all tiles to remove old piece sprites
                             for tile in tile_group:
@@ -476,7 +479,7 @@ def game(screen):
                                                                               'h': screen.get_height()}))
                 if event.unicode == "b":
                     # -- create bouncer --
-                    for i in range(500):
+                    for i in range(50):
                         balls.append(Bouncy(screen.get_size(), (screen.get_width() // 2, screen.get_height() // 2)))
 
                 if event.unicode == "r":
