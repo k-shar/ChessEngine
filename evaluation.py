@@ -75,9 +75,9 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
 
     if maximising:
         best_move = None
-        best_evaluation = -999
+        best_evaluation = -9999999
 
-        for i in range(len(piece_group)):
+        for i in range(len(piece_group)-1):
             if piece_group[i].color == "black":  # only move the friendly pieces
                 for move in piece_group[i].generate_legal_moves(tile_group, piece_group):
                     if move != piece_group[i].tile_index:
@@ -95,24 +95,28 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
 
                         # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
 
-                        if current_move_evaluation > best_evaluation:
+                        if current_move_evaluation >= best_evaluation:
                             # bishop is 0.2, should be -3
                             best_evaluation = current_move_evaluation
+                            best_move = new_fen, move
+
+                        if best_move is None:
                             best_move = new_fen, move
 
                         alpha = max(alpha, best_evaluation)
                         if best_evaluation >= beta:
                             break
-        if best_move is None:
-            print(best_evaluation, current_move_evaluation)
-        return best_move[0], best_evaluation
+        try:
+            return best_move[0], best_evaluation
+        except:
+            return None, best_evaluation
 
     # minimising case
     else:
         best_move = None
-        best_evaluation = 999
+        best_evaluation = 99999999
 
-        for i in range(len(piece_group)):
+        for i in range(len(piece_group)-1):
             if piece_group[i].color == "white":  # only move the friendly pieces
                 for move in piece_group[i].generate_legal_moves(tile_group, piece_group):
                     if move != piece_group[i].tile_index:
@@ -129,20 +133,24 @@ def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
                         # evaluate move
                         current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, True, alpha, beta)[1]
 
-
                         # print(move, piece_group[i], current_move_evaluation, depth)
                         # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
 
-                        if current_move_evaluation < best_evaluation:
+                        if current_move_evaluation <= best_evaluation:
                             best_evaluation = current_move_evaluation
+                            best_move = new_fen, move
+
+                        if best_move is None:
                             best_move = new_fen, move
 
                         beta = min(beta, best_evaluation)
                         if best_evaluation <= alpha:
                             break
 
-
-        return best_move[0], best_evaluation
+        try:
+            return best_move[0], best_evaluation
+        except:
+            return None, best_evaluation
 
 
 if __name__ == "__main__":

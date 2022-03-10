@@ -11,6 +11,7 @@ import random
 from bouncing_ball import Bouncy
 from generate_positions import puzzles, endgames, generate_random_fen
 import time
+import threading
 
 
 def game(screen):
@@ -43,6 +44,7 @@ def game(screen):
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"
     STARTING_FEN = "rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w KQkq"  # starting pos
+    STARTING_FEN = "1111k111/11111111/11111111/11111111/11111111/1111111R/111K1111/11111111 w KQkq"
 
     is_valid_fen(STARTING_FEN)
     active_FEN = STARTING_FEN
@@ -362,6 +364,8 @@ def game(screen):
                                             screen.blit(window.image, window.rect)
                                             pygame.display.flip()
 
+                                        # new_thread = threading.Thread(target=alphabeta, args=(active_FEN, tile_group, 3, True, -999, 999, ))
+                                        # new_thread.start()
                                         active_FEN, evaluation = alphabeta(active_FEN, tile_group, 3, True, -999, 999)
                                         time_to_move = time.time() - now
                                         print(time_to_move)
