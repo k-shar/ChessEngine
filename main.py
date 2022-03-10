@@ -722,9 +722,9 @@ def game(screen):
             chess_board_border.image.blit(chess_board.image, chess_board.rect)
             window.image.blit(chess_board_border.image, chess_board_border.rect)
 
-            # mouse pointer
-            window.image.blit(mouse_pointer, [pygame.mouse.get_pos()[0] - window_offset[0] - mouse_pointer_size//2,
-                                              pygame.mouse.get_pos()[1] - window_offset[1] - mouse_pointer_size//2])
+        # mouse pointer
+        window.image.blit(mouse_pointer, [pygame.mouse.get_pos()[0] - window_offset[0] - mouse_pointer_size//2,
+                                          pygame.mouse.get_pos()[1] - window_offset[1] - mouse_pointer_size//2])
 
         fps_counter.draw_text(f"{str(clock.get_fps())[:4]} fps")
         window.image.blit(fps_counter.image, fps_counter.rect)
