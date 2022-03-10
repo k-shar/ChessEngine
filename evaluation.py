@@ -8,10 +8,12 @@ from threading import Thread
 
 
 def normalise_evaluation(eval):
-    scale = 0.4
-    tanhx = ((e**(scale * eval) - 1)/(e**(scale * eval) + 1))
-    return (tanhx + 1) / 2
-
+    try:
+        scale = 0.4
+        tanhx = ((e**(scale * eval) - 1)/(e**(scale * eval) + 1))
+        return (tanhx + 1) / 2
+    except OverflowError:
+        return 100
 
 def generate_evaluation_spectrum(start, end):
     spectrum = []
@@ -64,93 +66,7 @@ def static_evaluation(piece_group):
     return round(evaluation, 4)
 
 
-def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
-    piece_group = instasiate_pieces(FEN)
 
-    if depth == 0:  # TODO: add game over
-        for piece in piece_group:
-            piece.set_location_evaluation(tile_group)  # update its location evaluation
-
-        return FEN, static_evaluation(piece_group)
-
-    if maximising:
-        best_move = None
-        best_evaluation = -9999999
-
-        for i in range(len(piece_group)-1):
-            if piece_group[i].color == "black":  # only move the friendly pieces
-                for move in piece_group[i].generate_legal_moves(tile_group, piece_group):
-                    if move != piece_group[i].tile_index:
-                        # play this move
-                        for tile in tile_group:
-                            if tile.tile_index == piece_group[i].tile_index:
-                                old_tile = tile
-                            elif tile.tile_index == move:
-                                new_tile = tile
-                        move = piece_group[i].name, new_tile.coordinate, new_tile.pos
-                        new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
-
-                        # evaluate move
-                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, False, alpha, beta)[1]
-
-                        # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
-
-                        if current_move_evaluation >= best_evaluation:
-                            # bishop is 0.2, should be -3
-                            best_evaluation = current_move_evaluation
-                            best_move = new_fen, move
-
-                        if best_move is None:
-                            best_move = new_fen, move
-
-                        alpha = max(alpha, best_evaluation)
-                        if best_evaluation >= beta:
-                            break
-        try:
-            return best_move[0], best_evaluation
-        except:
-            return None, best_evaluation
-
-    # minimising case
-    else:
-        best_move = None
-        best_evaluation = 99999999
-
-        for i in range(len(piece_group)-1):
-            if piece_group[i].color == "white":  # only move the friendly pieces
-                for move in piece_group[i].generate_legal_moves(tile_group, piece_group):
-                    if move != piece_group[i].tile_index:
-
-                        # play this move
-                        for tile in tile_group:
-                            if tile.tile_index == piece_group[i].tile_index:
-                                old_tile = tile
-                            elif tile.tile_index == move:
-                                new_tile = tile
-                        move = piece_group[i].name, new_tile.coordinate, new_tile.pos
-                        new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
-
-                        # evaluate move
-                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, True, alpha, beta)[1]
-
-                        # print(move, piece_group[i], current_move_evaluation, depth)
-                        # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
-
-                        if current_move_evaluation <= best_evaluation:
-                            best_evaluation = current_move_evaluation
-                            best_move = new_fen, move
-
-                        if best_move is None:
-                            best_move = new_fen, move
-
-                        beta = min(beta, best_evaluation)
-                        if best_evaluation <= alpha:
-                            break
-
-        try:
-            return best_move[0], best_evaluation
-        except:
-            return None, best_evaluation
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ from window_sizing import ScaleSurface, TextSurface, ColorThemeButton, HintsTogg
 from tiles import Tile
 from pieces import *
 from fen_manipulation import is_valid_fen, make_move_on_FEN, instasiate_pieces
-from evaluation import generate_evaluation_spectrum, alphabeta, static_evaluation
+from evaluation import generate_evaluation_spectrum, static_evaluation
 import colors
 import random
 from bouncing_ball import Bouncy
@@ -13,8 +13,105 @@ from generate_positions import puzzles, endgames, generate_random_fen
 import time
 import threading
 
+####################### alpha beta #########################
+# pasted in this file to make threading work :D
+def alphabeta(FEN, tile_group, depth, maximising, alpha, beta):
+    piece_group = instasiate_pieces(FEN)
+
+    if depth == 0:  # TODO: add game over
+        for piece in piece_group:
+            piece.set_location_evaluation(tile_group)  # update its location evaluation
+
+        return FEN, static_evaluation(piece_group)
+
+    if maximising:
+        best_move = None
+        best_evaluation = -9999999
+
+        for i in range(len(piece_group)-1):
+            if piece_group[i].color == "black":  # only move the friendly pieces
+                for move in piece_group[i].generate_legal_moves(tile_group, piece_group):
+                    if move != piece_group[i].tile_index:
+                        # play this move
+                        for tile in tile_group:
+                            if tile.tile_index == piece_group[i].tile_index:
+                                old_tile = tile
+                            elif tile.tile_index == move:
+                                new_tile = tile
+                        move = piece_group[i].name, new_tile.coordinate, new_tile.pos
+                        new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
+
+                        # evaluate move
+                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, False, alpha, beta)[1]
+
+                        # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
+
+                        if current_move_evaluation >= best_evaluation:
+                            # bishop is 0.2, should be -3
+                            best_evaluation = current_move_evaluation
+                            best_move = new_fen, move
+
+                        if best_move is None:
+                            best_move = new_fen, move
+
+                        alpha = max(alpha, best_evaluation)
+                        if best_evaluation >= beta:
+                            break
+        try:
+            return best_move[0], best_evaluation
+        except:
+            return None, best_evaluation
+
+    # minimising case
+    else:
+        best_move = None
+        best_evaluation = 99999999
+
+        for i in range(len(piece_group)-1):
+            if piece_group[i].color == "white":  # only move the friendly pieces
+                for move in piece_group[i].generate_legal_moves(tile_group, piece_group):
+                    if move != piece_group[i].tile_index:
+
+                        # play this move
+                        for tile in tile_group:
+                            if tile.tile_index == piece_group[i].tile_index:
+                                old_tile = tile
+                            elif tile.tile_index == move:
+                                new_tile = tile
+                        move = piece_group[i].name, new_tile.coordinate, new_tile.pos
+                        new_fen = make_move_on_FEN(FEN, move, old_tile.pos)
+
+                        # evaluate move
+                        current_move_evaluation = alphabeta(new_fen, tile_group, depth - 1, True, alpha, beta)[1]
+
+                        # print(move, piece_group[i], current_move_evaluation, depth)
+                        # print(piece_group[i], piece_group[i].color, move, current_move_evaluation, best_evaluation)
+
+                        if current_move_evaluation <= best_evaluation:
+                            best_evaluation = current_move_evaluation
+                            best_move = new_fen, move
+
+                        if best_move is None:
+                            best_move = new_fen, move
+
+                        beta = min(beta, best_evaluation)
+                        if best_evaluation <= alpha:
+                            break
+
+        try:
+            return best_move[0], best_evaluation
+        except:
+            return None, best_evaluation
+
+value = []
+def callalphabeta(FEN, tile_group, depth, maximising, alpha, beta):
+    global value
+    value = alphabeta(FEN, tile_group, depth, maximising, alpha, beta)
+###################### end of alpha beta ##############################
+########################################################################
 
 def game(screen):
+    global value
     pygame.display.set_caption("Epic chess engine")
     img = pygame.image.load("img/black_knight.svg")
     pygame.display.set_icon(img)
@@ -23,6 +120,7 @@ def game(screen):
     cat = pygame.image.load("cats.png")
     do_engine = True
     active_piece = None
+    engine_thinking = False
     show_ui = True
     show_coordinates = False
     player_move = None
@@ -339,40 +437,18 @@ def game(screen):
                                         screen.fill((255,255,255))
 
                                         # create balls
-                                        for i in range(50):
+                                        for i in range(500):
                                             balls.append(Bouncy(screen.get_size(),
                                                                 (screen.get_width() // 2, screen.get_height() // 2)))
-                                        for i in range(120):
-                                            if len(balls) > 0:
-                                                # draw ball
-                                                frame += 1
-                                                for ball in balls:
-                                                    pygame.draw.circle(ball.image, color_spectrum[frame],
-                                                                       (mouse_pointer_size // 2,
-                                                                        mouse_pointer_size // 2),
-                                                                       mouse_pointer_size // 2)
-                                                    ball.update(window.image.get_size())
 
-                                                    window.image.blit(ball.image, ball.rect)
-                                            screen.blit(window.image, window.rect)
-                                            pygame.display.flip()
-                                            clock.tick(60)
+                                        value = []
+                                        new_thread = threading.Thread(target=callalphabeta, args=(active_FEN, tile_group, 3, True, -999, 999, ))
+                                        new_thread.start()
+                                        engine_thinking = True
+                                        # active_FEN, evaluation = alphabeta(active_FEN, tile_group, 3, True, -999, 999)
+                                        # time_to_move = time.time() - now
+                                        # print(time_to_move)
 
-                                            catimg = pygame.transform.scale(cat, (chess_board.rect.height * 0.9, chess_board.rect.height * 0.9))
-                                            window.image.blit(chess_board.image, chess_board.rect)
-                                            window.image.blit(catimg, (chess_board.rect.height * 0.9, chess_board.rect.height * 0.05))
-                                            screen.blit(window.image, window.rect)
-                                            pygame.display.flip()
-
-                                        # new_thread = threading.Thread(target=alphabeta, args=(active_FEN, tile_group, 3, True, -999, 999, ))
-                                        # new_thread.start()
-                                        active_FEN, evaluation = alphabeta(active_FEN, tile_group, 3, True, -999, 999)
-                                        time_to_move = time.time() - now
-                                        print(time_to_move)
-
-                                        piece_group = instasiate_pieces(active_FEN)
-                                        for piece in piece_group:
-                                            piece.resize(tile_group[piece.tile_index].image.get_rect().size, 1)
                                     else:
                                         evaluation = static_evaluation(piece_group)
                                     # update the slider
@@ -520,7 +596,7 @@ def game(screen):
                                                                               'h': screen.get_height()}))
                 if event.unicode == "b":
                     # -- create bouncer --
-                    for i in range(50):
+                    for i in range(500):
                         balls.append(Bouncy(screen.get_size(), (screen.get_width() // 2, screen.get_height() // 2)))
 
                 if event.unicode == "r":
@@ -543,6 +619,25 @@ def game(screen):
         pygame.draw.circle(mouse_pointer, mouse_color,
                           (mouse_pointer_size // 2, mouse_pointer_size // 2), mouse_pointer_size // 2)
 
+        if engine_thinking:
+            catimg = pygame.transform.scale(cat, (chess_board.rect.height * 0.9, chess_board.rect.height * 0.9))
+            window.image.blit(chess_board.image, chess_board.rect)
+            window.image.blit(catimg, (chess_board.rect.height * 0.9, chess_board.rect.height * 0.05))
+            screen.blit(window.image, window.rect)
+            if len(value) >= 1:
+                # engine has returned a value
+                active_FEN, evaluation = value[0], value[1]
+                piece_group = instasiate_pieces(active_FEN)
+                for piece in piece_group:
+                    piece.resize(tile_group[piece.tile_index].image.get_rect().size, 1)
+                if len(evaluation_transition) > 0:
+                    evaluation_transition = generate_evaluation_spectrum(evaluation_transition[-1], evaluation)
+                else:
+                    evaluation_transition = generate_evaluation_spectrum(eval_minimiser.slide, evaluation)
+                engine_thinking = False
+                value = []
+                print(active_FEN)
+
         """ draw balls """
         if len(balls) > 0:
             # draw ball
@@ -555,7 +650,7 @@ def game(screen):
             balls.remove(balls[0])
 
         """ draw ui """
-        if show_ui:
+        if show_ui and not engine_thinking:
             # color themes
             options_border.image.blit(color_theme_label.image, color_theme_label.rect)
             for surf in color_theme_button_group:
@@ -637,10 +732,10 @@ def game(screen):
         # window
         screen.blit(window.image, window.rect)
 
+
         if active_piece is not None:
             screen.blit(active_piece.image, [pygame.mouse.get_pos()[0] - active_piece.rect.width // 2,
                                              pygame.mouse.get_pos()[1] - active_piece.rect.height // 2])
-
 
         clock.tick(60)
         pygame.display.update()
