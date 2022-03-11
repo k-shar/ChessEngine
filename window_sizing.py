@@ -204,6 +204,8 @@ class EvaluationSlider(ScaleSurface):
         # store new slide
         self.slide = slide
         if self.parent is not None:
+            if normalise_evaluation(self.slide):
+                return 0
             # undo old slide and apply new slide
             if self.is_top:
                 self.rect.bottom = self.parent.get_height() * normalise_evaluation(slide) / normalise_evaluation(self.slide)
